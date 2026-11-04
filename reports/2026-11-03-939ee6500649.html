@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>تقرير مؤشرات أداء المناديب – جدة</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI","Tahoma",Arial,sans-serif;background:#eef2f7;color:#1f2937;
+  line-height:1.7;-webkit-font-size-adjust:100%}
+.wrap{max-width:1280px;margin:0 auto;padding:28px 20px 60px}
+header{background:linear-gradient(135deg,#0f3d5c,#12667f 55%,#0e7490);color:#fff;border-radius:16px;
+  padding:28px 30px;box-shadow:0 10px 26px rgba(15,61,92,.22)}
+header h1{font-size:26px;font-weight:800;letter-spacing:-.2px}
+header .sub{opacity:.9;font-size:14px;margin-top:6px}
+header .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+header .meta span{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);
+  padding:5px 12px;border-radius:999px;font-size:12.5px}
+h2{font-size:19px;margin:34px 0 14px;padding-right:12px;border-right:5px solid #0e7490;font-weight:800}
+h3{font-size:16px;margin:18px 0 10px;color:#0f3d5c}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px;margin-top:24px}
+.card{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 3px 12px rgba(16,42,67,.08);
+  border-top:4px solid #0e7490}
+.card.k-red{border-top-color:#dc2626} .card.k-amber{border-top-color:#d97706}
+.card.k-green{border-top-color:#16a34a} .card.k-blue{border-top-color:#2563eb}
+.card.k-slate{border-top-color:#475569}
+.card .lab{font-size:12.5px;color:#64748b;font-weight:600}
+.card .val{font-size:27px;font-weight:800;margin-top:4px;letter-spacing:-.5px}
+.card .hint{font-size:11.5px;color:#94a3b8;margin-top:2px}
+.panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 3px 12px rgba(16,42,67,.08)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#0f3d5c;color:#fff;padding:10px 8px;font-weight:700;text-align:right;
+  position:sticky;top:0;font-size:12.5px}
+th.num,td.num{text-align:center}
+tbody tr:nth-child(even){background:#f8fafc}
+tbody tr:hover{background:#eef6fb}
+td{padding:9px 8px;border-bottom:1px solid #e8eef4}
+.sub{font-size:11px;color:#94a3b8;font-weight:400}
+.sub2{font-size:11.5px;color:#94a3b8}
+.big{font-weight:800;font-size:14.5px}
+.g-a-t{color:#15803d} .g-b-t{color:#1d4ed8} .g-c-t{color:#b45309} .g-d-t{color:#b91c1c}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:8px}
+.g-a{background:#16a34a} .g-b{background:#2563eb} .g-c{background:#d97706} .g-d{background:#dc2626}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700}
+.p-g{background:#dcfce7;color:#166534} .p-a{background:#fef3c7;color:#92400e} .p-r{background:#fee2e2;color:#991b1b}
+.tag{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;
+  margin:1px 0 1px 3px;white-space:nowrap}
+.tag-ok{background:#e2e8f0;color:#475569} .tag-a{background:#fef3c7;color:#92400e} .tag-r{background:#fee2e2;color:#991b1b}
+.pos{color:#b91c1c;font-weight:700} .neg{color:#15803d;font-weight:700}
+.warn{color:#b91c1c}
+.brow{display:grid;grid-template-columns:200px 1fr 42px;gap:10px;align-items:center;padding:3px 0;font-size:12.5px}
+.bname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;color:#334155}
+.btrack{position:relative;background:#f1f5f9;height:17px;border-radius:5px;overflow:hidden}
+.bfill{height:100%;border-radius:5px}
+.btarget{position:absolute;top:-2px;height:21px;width:2px;background:#0f172a;opacity:.65}
+.bval{text-align:center;font-weight:800;color:#0f3d5c}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:#475569;margin:10px 0 14px}
+.legend b{font-weight:700}
+ul{padding-right:20px} li{margin-bottom:7px;font-size:14px}
+.note{background:#fffbeb;border:1px solid #fde68a;border-right:5px solid #f59e0b;border-radius:10px;
+  padding:14px 16px;font-size:13px;color:#78350f}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.brow{grid-template-columns:130px 1fr 36px;font-size:11.5px}}
+footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:34px}
+.scroll{overflow-x:auto;max-height:640px;border-radius:10px}
+
+.ltr{direction:ltr;unicode-bidi:embed}
+table code{font-size:11.5px;background:#f1f5f9;padding:1px 5px;border-radius:4px;color:#334155}
+.sigrow{display:flex;gap:20px;justify-content:space-between;align-items:flex-end;margin-top:16px;
+  border-top:2px solid #e2e8f0;padding-top:14px}
+.sigbox{width:47%}
+.sigbox .lab{font-size:12.5px;color:#64748b;font-weight:700}
+.sigbox .nm{font-size:16px;font-weight:800;color:#0f3d5c;margin-top:3px}
+.sigbox .ttl{font-size:12.5px;color:#475569;margin-top:2px}
+.sigbox img{height:64px;margin-top:8px;object-fit:contain;object-position:right;display:block}
+.sigbox:last-child img{display:none}
+.sigline{display:block;height:22px;border-bottom:1px dashed #cbd5e1;margin:6px 0 4px}
+@media print{
+  body{background:#fff}
+  .scroll{max-height:none;overflow:visible}
+  th{position:static}
+  tfoot{display:table-row-group}
+  .cards{display:block;margin-top:14px}
+  .card{display:inline-block;width:31.4%;margin:0 1% 9px 0;padding:10px 12px;break-inside:avoid;
+    border-radius:10px;box-shadow:none;border:1px solid #e2e8f0;border-top-width:4px}
+  .card .val{font-size:20px}
+  .card .hint{font-size:10.5px}
+  .grid2{display:block}
+  h2{break-after:avoid;margin:22px 0 10px}
+  h3{break-after:avoid}
+  .panel{padding:14px}
+  .brow{break-inside:avoid}
+  .dt{font-size:9px}
+  .dt th,.dt td{padding:4px 3px}
+  .dt th{font-size:9.5px}
+  .dt td:nth-child(2){width:112px}
+  .dt .sub{font-size:8px}
+  .dt .tag{font-size:8.5px;padding:1px 4px}
+  .dt .pill{font-size:9px;padding:1px 5px}
+  .dt tfoot td{font-size:9.5px}
+  .note ul li{margin-bottom:4px}
+  footer{margin-top:18px}
+}
+</style></head>
+<body><div style="padding:16px;background:#eef6fa;text-align:center"><a href="../index.html">← لوحة الأداء</a> · <a href="../report-history.html">سجل التقارير</a><p>التاريخ مستند إلى سياق اسم الملف، وليس تاريخاً متحققاً من محتوى المصدر. نسخة محفوظة لا تستبدل الأيام الأخرى.</p></div><div class="wrap">
+<header>
+<h1>تقرير مؤشرات الأداء (KPI) – أداء المناديب</h1>
+<div class="sub">تحليل الإنجاز مقابل المستهدف التشغيلي، مع قياس الحضور وساعات العمل والمخرجات</div>
+<div class="meta">
+<span>المدينة: Jeddah</span>
+<span>العقد: nemow_ebc_shift_ftr</span>
+
+<span>المستهدف: 15 توصيل / يوم عمل / مندوب (بطلب المستخدم)</span>
+<span>عدد المناديب محل التحليل: 31</span>
+<span>تاريخ التقرير: 3 نوفمبر 2026 · تاريخ بيانات المصدر غير مدون</span>
+<span>وحدة القياس: سجل الأداء المرفق؛ أيام العمل كما وردت في المصدر</span>
+<span>المدينة: جدة · مصدر واحد · لقطة غير مؤرخة</span>
+</div>
+</header>
+<div class="cards">
+<div class="card k-red">
+<div class="lab">معدل تحقيق المستهدف</div>
+<div class="val" style="color:#dc2626">84.9%</div>
+<div class="hint">395 من أصل 465 توصيل · 31 مندوبًا</div>
+</div>
+<div class="card k-amber">
+<div class="lab">متوسط التوصيل لكل مندوب</div>
+<div class="val" style="color:#b45309">12.74</div>
+<div class="hint">وسيط 14 · 15 توصيل لكل مندوب</div>
+</div>
+<div class="card k-red">
+<div class="lab">الفجوة عن المستهدف</div>
+<div class="val" style="color:#dc2626">70</div>
+<div class="hint">صافي الفجوة · نقص إجمالي 82 وفائض 12</div>
+</div>
+<div class="card k-slate">
+<div class="lab">نسبة الحضور</div>
+<div class="val" style="color:#334155">91.0%</div>
+<div class="hint">316.64 من 348.00 ساعة مخططة</div>
+</div>
+<div class="card k-red">
+<div class="lab">فجوة المخطط مقابل التنفيذ</div>
+<div class="val" style="color:#dc2626">31.36</div>
+<div class="hint">9.0% من الساعات المخططة</div>
+</div>
+<div class="card k-amber">
+<div class="lab">ساعات مهدرة (سجل المصدر)</div>
+<div class="val" style="color:#b45309">23.48</div>
+<div class="hint">ساعات من حقل المصدر · تعريفه غير متاح</div>
+</div>
+<div class="card k-blue">
+<div class="lab">الإنتاجية</div>
+<div class="val" style="color:#1d4ed8">1.25</div>
+<div class="hint">توصيل مكتمل / ساعة فعلية مسجلة</div>
+</div>
+<div class="card k-slate">
+<div class="lab">تشتت الإنتاج داخل الفريق</div>
+<div class="val" style="color:#334155">30.6%</div>
+<div class="hint">انحراف معياري 3.90 حول متوسط 12.74</div>
+</div>
+<div class="card k-amber">
+<div class="lab">المناديب دون المستهدف</div>
+<div class="val" style="color:#b45309">19</div>
+<div class="hint">من أصل 31 مندوبًا دون 15</div>
+</div>
+<div class="card k-green">
+<div class="lab">المناديب المحققون</div>
+<div class="val" style="color:#16a34a">12</div>
+<div class="hint">بلغوا 15 توصيلًا أو أكثر</div>
+</div>
+<div class="card k-slate">
+<div class="lab">توزيع يدوي</div>
+<div class="val" style="color:#334155">31</div>
+<div class="hint">طلبًا · على 14 مندوبًا · تعريف الحقل غير متاح</div>
+</div>
+</div>
+<h2>ملخص تنفيذي</h2>
+<div class="panel"><ul>
+<li>أنجز الفريق <b>395</b> توصيلاً من مستهدف <b>465</b> (31 مندوباً × 15 توصيل)، بنسبة <b>84.9%</b> ومتوسط <b>12.74</b> ووسيط <b>14</b> توصيل للمندوب.</li>
+<li>بلغ المستهدف <b>12</b> من أصل <b>31</b> (38.7%)، وعددهم: APU SARDAR (<b>18</b>)، MD SHAHAGIR (<b>18</b>)، MOSHARAF HOSSEN RUPON (<b>18</b>)، A S M SAJIB BHUIYAN (<b>17</b>)، Zunnurain Saif Ullah (<b>16</b>)، SHAHIN MIAH (<b>15</b>)، SHEHROZ IQBAL MUHAMMAD (<b>15</b>)، KHUBAIB RAHIM (<b>15</b>)، MUHAMMAD ARSHAD SHOUKAT (<b>15</b>)، MUHAMMAD ARSHAD  YASEEN (<b>15</b>)، MD AYON (<b>15</b>)، LITON GOLDAR (<b>15</b>)؛ والباقون <b>19</b> مندوباً.</li>
+<li>صافي فجوة الفريق عن المستهدف <b>70</b> توصيلاً. مجموع النقص الفردي <b>82</b> يعادله فائض <b>12</b>؛ أعلى 10 منادبين بالنقص يجمعون <b>68</b> (<b>82.9%</b>)، وأعلى 20 <b>82</b> (<b>100.0%</b>).</li>
+<li>الساعات الفعلية <b>316.64</b> من <b>348.00</b> مخططة: تنفيذ <b>91.0%</b> وفارق حسابي <b>31.36</b> ساعة. حقل «ساعات مهدرة» يسجل <b>23.48</b> ساعة ولا يساوي هذا الفارق.</li>
+<li class="warn">المُبلّغة تساوي <b>417</b> في المصدر مع <b>395</b> مكتملة؛ لا يعرض هذا التقرير معدلي الإكمال والرفض بحسب المُبلّغ.</li>
+<li>توجد حساسية واضحة لمقام الساعات: لا توجد ساعات أقل من 0.1. كما أن <b>0</b> مندوبين لديهم مكتملات مع ساعات فعلية صفر، ما يجعل إنتاجيتهم بالساعة غير قابلة للحساب.</li>
+<li class="warn">مناديب بحاجة إلى مراجعة (توصيلات أقل من 5): <b>1</b> من أصل <b>31</b> وعندهم 1 توصيلة مكتملة. هم: SAID ALI SHAH GRAN BACHA [<b>4552582</b>] (1 توصيل).</li>
+<li>«التوزيع اليدوي» يسجل <b>31</b> طلباً على <b>14</b> مناديب؛ أعلى القيم: MD AYON <b>5</b>، RAHMAT KHAN AHMED <b>4</b>، A S M SAJIB BHUIYAN <b>3</b>. تعريف الحقل غير متاح.</li>
+</ul></div>
+<h2>طريقة قراءة المؤشرات</h2>
+<div class="panel">
+<div style="max-width:100%;overflow-x:auto"><table>
+<thead><tr><th>المؤشر</th><th>طريقة الحساب</th><th class="num">القيمة</th><th class="num">المقام</th></tr></thead>
+<tbody><tr><td>معدل تحقيق المستهدف</td><td>المكتملة ÷ (عدد المناديب × 15)</td><td class="num">84.9%</td><td class="num">465</td></tr><tr><td>متوسط التوصيل لكل مندوب</td><td>مجموع المكتملة ÷ عدد المناديب</td><td class="num">12.74</td><td class="num">31</td></tr><tr><td>نسبة تنفيذ الساعات</td><td>الساعات الفعلية ÷ الساعات المخططة</td><td class="num">91.0%</td><td class="num">348.00 ساعة</td></tr><tr><td>فجوة المخطط مقابل التنفيذ</td><td>الساعات المخططة − الساعات الفعلية</td><td class="num">31.36 ساعة</td><td class="num">9.0% من المخطط</td></tr><tr><td>الإنتاجية</td><td>المكتملة ÷ الساعات الفعلية</td><td class="num">1.25</td><td class="num">316.64 ساعة</td></tr><tr><td>توصيل/ساعة للمندوب</td><td>مكتملات المندوب ÷ ساعاته الفعلية</td><td class="num">0.70 – 1.77</td><td class="num">0.00 مندوب بمعدل أعلى من 3</td></tr><tr><td>الفرق عن المستهدف</td><td>توصيلات المندوب − 15</td><td class="num">من ناقص 14 إلى زائد 3</td><td class="num">صافي الفريق 70</td></tr><tr><td>ساعات مهدرة</td><td>حقل مصدر كما ورد، دون اشتقاق</td><td class="num">23.48</td><td class="num">تعريف الحقل غير متاح</td></tr><tr><td>تشتت الإنتاج</td><td>الانحراف المعياري ÷ المتوسط × 100</td><td class="num">30.6%</td><td class="num">انحراف 3.90</td></tr></tbody></table></div>
+</div>
+<div class="note" style="margin-top:14px">كل الأرقام أعلاه محسوبة من صفوف المصدر الحالية. «نسبة تنفيذ الساعات» تعني الفعلية ÷ المخططة ولا تثبت الالتزام أو سبب الغياب. حقل «ساعات مهدرة» منفصل عن فرق المخطط والفعلي.</div>
+<h2>توزيع الأداء حسب شريحة المستهدف</h2>
+<div class="panel">
+<div style="max-width:100%;overflow-x:auto"><table>
+<thead><tr><th>الشريحة</th><th>المدى</th><th class="num">عدد المناديب</th><th class="num">النسبة من الفريق</th><th class="num">إجمالي التوصيل</th><th class="num">متوسط الشريحة</th><th class="num">حصة الفريق من التوصيلات</th></tr></thead>
+<tbody><tr><td><span class="dot g-a"></span>تحقيق المستهدف</td><td>المستهدف ≥ 15 توصيل/مندوب</td><td class="num">12.00</td><td class="num">38.7%</td><td class="num">192</td><td class="num">16.00</td><td class="num">48.6%</td></tr><tr><td><span class="dot g-b"></span>قريب من المستهدف</td><td>12–14 توصيل/مندوب</td><td class="num">11.00</td><td class="num">35.5%</td><td class="num">145</td><td class="num">13.18</td><td class="num">36.7%</td></tr><tr><td><span class="dot g-c"></span>أداء متوسط</td><td>9–11 توصيل/مندوب</td><td class="num">3.00</td><td class="num">9.7%</td><td class="num">31</td><td class="num">10.33</td><td class="num">7.8%</td></tr><tr><td><span class="dot g-d"></span>أداء حرج</td><td>8 توصيلات أو أقل</td><td class="num">5.00</td><td class="num">16.1%</td><td class="num">27</td><td class="num">5.40</td><td class="num">6.8%</td></tr></tbody>
+<tfoot><tr style="background:#0f3d5c;color:#fff;font-weight:700"><td>الإجمالي</td><td></td><td class="num">31</td><td class="num">100%</td><td class="num">395</td><td class="num">12.74</td><td class="num">100%</td></tr></tfoot>
+</table></div>
+</div>
+<h2>تركّز الإنتاج والفجوة</h2>
+<div class="panel">
+<div style="max-width:100%;overflow-x:auto"><table>
+<thead><tr><th>المجموعة</th><th class="num">عدد المناديب</th><th class="num">مجموع التوصيلات</th><th class="num">حصة الفريق من التوصيلات</th><th class="num">مجموع النقص عن المستهدف</th><th class="num">حصة الفريق من النقص</th></tr></thead>
+<tbody><tr><td>محققو المستهدف</td><td class="num">12</td><td class="num">192</td><td class="num">48.6%</td><td class="num">0</td><td class="num">0.0%</td></tr><tr><td>أعلى 10 بالنقص</td><td class="num">10</td><td class="num">82</td><td class="num">20.8%</td><td class="num">68</td><td class="num">82.9%</td></tr><tr><td>المجموعة التالية بالنقص</td><td class="num">9</td><td class="num">121</td><td class="num">30.6%</td><td class="num">14</td><td class="num">17.1%</td></tr><tr><td>بقية المناديب</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">0</td><td class="num">0.0%</td></tr></tbody>
+<tfoot><tr style="background:#0f3d5c;color:#fff;font-weight:700"><td>الإجمالي</td><td class="num">31</td><td class="num">395</td><td class="num">100%</td><td class="num">82</td><td class="num">100%</td></tr></tfoot>
+</table></div>
+<div class="legend" style="margin-top:14px">
+<span><b>الوسيط:</b> 14 توصيل · <b>المتوسط:</b> 12.74 · <b>الانحراف المعياري:</b> 3.90 · <b>معامل الاختلاف:</b> 30.6%</span>
+</div>
+<div class="note">مجموع النقص الفردي <b>82</b> يختلف عن صافي فجوة الفريق <b>70</b> لأن فائض 12 توصيل يُخصم حسابياً من النقص. لا يثبت هذا فرقاً تشغيلياً سببياً.</div>
+</div>
+<h2>مقارنة الإنتاجية مع المستهدف (15 توصيل / يوم)</h2>
+<div class="panel"><div class="legend"><span><span class="dot g-a"></span> <b>محقّق المستهدف</b></span><span><span class="dot g-b"></span> <b>قريب (12–14)</b></span><span><span class="dot g-c"></span> <b>متوسط (9–11)</b></span><span><span class="dot g-d"></span> <b>حرج (≤ 8)</b></span><span style="color:#0f172a">▌ خط المستهدف = 15</span></div><div class="brow"><div class="bname">APU SARDAR</div><div class="btrack"><div class="bfill g-a" style="width:90.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">18</div></div><div class="brow"><div class="bname">MD SHAHAGIR</div><div class="btrack"><div class="bfill g-a" style="width:90.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">18</div></div><div class="brow"><div class="bname">MOSHARAF HOSSEN RUPON</div><div class="btrack"><div class="bfill g-a" style="width:90.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">18</div></div><div class="brow"><div class="bname">A S M SAJIB BHUIYAN</div><div class="btrack"><div class="bfill g-a" style="width:85.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">17</div></div><div class="brow"><div class="bname">Zunnurain Saif Ullah</div><div class="btrack"><div class="bfill g-a" style="width:80.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">16</div></div><div class="brow"><div class="bname">SHAHIN MIAH</div><div class="btrack"><div class="bfill g-a" style="width:75.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">15</div></div><div class="brow"><div class="bname">SHEHROZ IQBAL MUHAMMAD</div><div class="btrack"><div class="bfill g-a" style="width:75.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">15</div></div><div class="brow"><div class="bname">KHUBAIB RAHIM</div><div class="btrack"><div class="bfill g-a" style="width:75.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">15</div></div><div class="brow"><div class="bname">MUHAMMAD ARSHAD SHOUKAT</div><div class="btrack"><div class="bfill g-a" style="width:75.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">15</div></div><div class="brow"><div class="bname">MUHAMMAD ARSHAD  YASEEN</div><div class="btrack"><div class="bfill g-a" style="width:75.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">15</div></div><div class="brow"><div class="bname">MD AYON</div><div class="btrack"><div class="bfill g-a" style="width:75.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">15</div></div><div class="brow"><div class="bname">LITON GOLDAR</div><div class="btrack"><div class="bfill g-a" style="width:75.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">15</div></div><div class="brow"><div class="bname">SHER BAHADER DILDAR</div><div class="btrack"><div class="bfill g-b" style="width:70.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">14</div></div><div class="brow"><div class="bname">MAZHAR UR REHMAN</div><div class="btrack"><div class="bfill g-b" style="width:70.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">14</div></div><div class="brow"><div class="bname">MD NURUL HAQUE</div><div class="btrack"><div class="bfill g-b" style="width:70.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">14</div></div><div class="brow"><div class="bname">EMAM HOSSAIN</div><div class="btrack"><div class="bfill g-b" style="width:70.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">14</div></div><div class="brow"><div class="bname">ABBAS KHAN</div><div class="btrack"><div class="bfill g-b" style="width:65.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">13</div></div><div class="brow"><div class="bname">MOHD AZAHAR MOHD</div><div class="btrack"><div class="bfill g-b" style="width:65.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">13</div></div><div class="brow"><div class="bname">MUHAMMAD FAHAD SHAHZAD</div><div class="btrack"><div class="bfill g-b" style="width:65.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">13</div></div><div class="brow"><div class="bname">AQIB HUSSAIN SHAH SAQIB</div><div class="btrack"><div class="bfill g-b" style="width:65.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">13</div></div><div class="brow"><div class="bname">HAFIZ MOHAMMAD ANSAR</div><div class="btrack"><div class="bfill g-b" style="width:65.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">13</div></div><div class="brow"><div class="bname">MUHAMMAD ILYAS KHAN</div><div class="btrack"><div class="bfill g-b" style="width:60.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">12</div></div><div class="brow"><div class="bname">GULDAD GOHAR REHMAN</div><div class="btrack"><div class="bfill g-b" style="width:60.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">12</div></div><div class="brow"><div class="bname">RAHEEM GULSHER</div><div class="btrack"><div class="bfill g-c" style="width:55.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">11</div></div><div class="brow"><div class="bname">MD SAJJAD HOSSAIN</div><div class="btrack"><div class="bfill g-c" style="width:50.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">10</div></div><div class="brow"><div class="bname">FAISAL UMAR SAIF  REHMAN</div><div class="btrack"><div class="bfill g-c" style="width:50.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">10</div></div><div class="brow"><div class="bname">SHADAB MEHTAB</div><div class="btrack"><div class="bfill g-d" style="width:40.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">8</div></div><div class="brow"><div class="bname">RAHMAT KHAN AHMED</div><div class="btrack"><div class="bfill g-d" style="width:35.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">7</div></div><div class="brow"><div class="bname">RAHIM ULLAH KHAN</div><div class="btrack"><div class="bfill g-d" style="width:30.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">6</div></div><div class="brow"><div class="bname">MD EMON GAZI</div><div class="btrack"><div class="bfill g-d" style="width:25.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">5</div></div><div class="brow"><div class="bname">SAID ALI SHAH GRAN BACHA</div><div class="btrack"><div class="bfill g-d" style="width:5.0%"></div><div class="btarget" style="right:calc(75.00% - 1px)"></div></div><div class="bval">1</div></div></div>
+<h2>أكبر فجوات الساعات بين المخطط والتنفيذ</h2>
+<div class="panel"><div class="legend"><span><b>القيمة:</b> الساعات المخططة ناقص الساعات الفعلية (ساعة)</span><span style="color:#0f172a">▌ خط = متوسط الفارق العام 1.01 ساعة</span></div><div class="brow"><div class="bname">SAID ALI SHAH GRAN BACHA <span class="ltr">4552582</span></div><div class="btrack"><div class="bfill g-d" style="width:100.0%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">5.99</div></div><div class="brow"><div class="bname">MD EMON GAZI <span class="ltr">4723954</span></div><div class="btrack"><div class="bfill g-d" style="width:67.8%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">4.06</div></div><div class="brow"><div class="bname">RAHIM ULLAH KHAN <span class="ltr">4999088</span></div><div class="btrack"><div class="bfill g-d" style="width:52.3%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">3.13</div></div><div class="brow"><div class="bname">RAHMAT KHAN AHMED <span class="ltr">4817339</span></div><div class="btrack"><div class="bfill g-d" style="width:47.2%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">2.83</div></div><div class="brow"><div class="bname">SHADAB MEHTAB <span class="ltr">4724435</span></div><div class="btrack"><div class="bfill g-d" style="width:35.9%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">2.15</div></div><div class="brow"><div class="bname">RAHEEM GULSHER <span class="ltr">4599496</span></div><div class="btrack"><div class="bfill g-d" style="width:30.6%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">1.83</div></div><div class="brow"><div class="bname">MD SHAHAGIR <span class="ltr">4724825</span></div><div class="btrack"><div class="bfill g-d" style="width:26.7%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">1.60</div></div><div class="brow"><div class="bname">MUHAMMAD FAHAD SHAHZAD <span class="ltr">4654650</span></div><div class="btrack"><div class="bfill g-d" style="width:26.0%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">1.56</div></div><div class="brow"><div class="bname">MOHD AZAHAR MOHD <span class="ltr">4599444</span></div><div class="btrack"><div class="bfill g-d" style="width:25.9%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">1.55</div></div><div class="brow"><div class="bname">A S M SAJIB BHUIYAN <span class="ltr">4550420</span></div><div class="btrack"><div class="bfill g-d" style="width:25.4%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">1.52</div></div><div class="brow"><div class="bname">SHAHIN MIAH <span class="ltr">4599437</span></div><div class="btrack"><div class="bfill g-d" style="width:23.4%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">1.40</div></div><div class="brow"><div class="bname">MD SAJJAD HOSSAIN <span class="ltr">4504765</span></div><div class="btrack"><div class="bfill g-d" style="width:18.7%"></div><div class="btarget" style="right:calc(16.89% - 1px)"></div></div><div class="bval">1.12</div></div></div>
+<div class="note" style="margin-top:12px">أعلى 5 منادبين يجمعون 18.16 ساعة من الفارق الحسابي (57.9% من 31.36 ساعة). حقل «ساعات مهدرة» يساوي 23.48 ساعة وله تعريف مستقل غير متاح.</div>
+<h2>تفاصيل أداء كل مندوب</h2>
+<div class="scroll panel">
+<div style="max-width:100%;overflow-x:auto"><table class="dt">
+<thead><tr><th class="num">#</th><th>اسم المندوب / Rider ID</th><th class="num">أيام العمل</th><th class="num">ساعات مخططة</th><th class="num">ساعات فعلية</th><th class="num">الحضور</th><th class="num">استراحة</th><th class="num">ساعات مهدرة (السجل)</th><th class="num">توصيلات</th><th class="num">% الإنجاز</th><th class="num">توصيل/ساعة</th><th class="num">الفرق عن المستهدف</th><th class="num">حصة التوصيلات</th><th class="num">توزيع يدوي</th><th>الملاحظات</th></tr></thead>
+<tbody><tr><td class="num">1.00</td><td><b>APU SARDAR</b><div class="sub">4723956</div></td><td class="num">1</td><td class="num">11.50</td><td class="num">11.78</td><td class="num">100.0%</td><td class="num">0.00</td><td class="num">0.10</td><td class="num"><b class="big g-a-t">18</b></td><td class="num">120.0%</td><td class="num">1.53</td><td class="num"><span class="neg"><span class="ltr">+3</span></span></td><td class="num">4.6%</td><td class="num">0</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">2.00</td><td><b>MD SHAHAGIR</b><div class="sub">4724825</div></td><td class="num">1</td><td class="num">11.75</td><td class="num">10.15</td><td class="num">86.4%</td><td class="num">0.25</td><td class="num">1.36</td><td class="num"><b class="big g-a-t">18</b></td><td class="num">120.0%</td><td class="num">1.77</td><td class="num"><span class="neg"><span class="ltr">+3</span></span></td><td class="num">4.6%</td><td class="num">2</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">3.00</td><td><b>MOSHARAF HOSSEN RUPON</b><div class="sub">5002220</div></td><td class="num">1</td><td class="num">10.75</td><td class="num">11.00</td><td class="num">100.0%</td><td class="num">0.00</td><td class="num">0.13</td><td class="num"><b class="big g-a-t">18</b></td><td class="num">120.0%</td><td class="num">1.64</td><td class="num"><span class="neg"><span class="ltr">+3</span></span></td><td class="num">4.6%</td><td class="num">0</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">4.00</td><td><b>A S M SAJIB BHUIYAN</b><div class="sub">4550420</div></td><td class="num">1</td><td class="num">11.75</td><td class="num">10.23</td><td class="num">87.1%</td><td class="num">0.27</td><td class="num">1.28</td><td class="num"><b class="big g-a-t">17</b></td><td class="num">113.3%</td><td class="num">1.66</td><td class="num"><span class="neg"><span class="ltr">+2</span></span></td><td class="num">4.3%</td><td class="num">3</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">5.00</td><td><b>Zunnurain Saif Ullah</b><div class="sub">4817340</div></td><td class="num">1</td><td class="num">11.75</td><td class="num">10.98</td><td class="num">93.4%</td><td class="num">0.00</td><td class="num">1.09</td><td class="num"><b class="big g-a-t">16</b></td><td class="num">106.7%</td><td class="num">1.46</td><td class="num"><span class="neg"><span class="ltr">+1</span></span></td><td class="num">4.1%</td><td class="num">0</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">6.00</td><td><b>SHAHIN MIAH</b><div class="sub">4599437</div></td><td class="num">1</td><td class="num">11.75</td><td class="num">10.35</td><td class="num">88.1%</td><td class="num">0.52</td><td class="num">1.31</td><td class="num"><b class="big g-a-t">15</b></td><td class="num">100.0%</td><td class="num">1.45</td><td class="num"><span class="pill p-g"><span class="ltr">0</span></span></td><td class="num">3.8%</td><td class="num">3</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">7.00</td><td><b>SHEHROZ IQBAL MUHAMMAD</b><div class="sub">4724215</div></td><td class="num">1</td><td class="num">11.50</td><td class="num">11.14</td><td class="num">96.9%</td><td class="num">0.51</td><td class="num">0.00</td><td class="num"><b class="big g-a-t">15</b></td><td class="num">100.0%</td><td class="num">1.35</td><td class="num"><span class="pill p-g"><span class="ltr">0</span></span></td><td class="num">3.8%</td><td class="num">0</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">8.00</td><td><b>KHUBAIB RAHIM</b><div class="sub">4724247</div></td><td class="num">1</td><td class="num">12.25</td><td class="num">11.73</td><td class="num">95.8%</td><td class="num">0.00</td><td class="num">1.05</td><td class="num"><b class="big g-a-t">15</b></td><td class="num">100.0%</td><td class="num">1.28</td><td class="num"><span class="pill p-g"><span class="ltr">0</span></span></td><td class="num">3.8%</td><td class="num">0</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">9.00</td><td><b>MUHAMMAD ARSHAD SHOUKAT</b><div class="sub">4724260</div></td><td class="num">1</td><td class="num">11.00</td><td class="num">11.25</td><td class="num">100.0%</td><td class="num">0.00</td><td class="num">0.00</td><td class="num"><b class="big g-a-t">15</b></td><td class="num">100.0%</td><td class="num">1.33</td><td class="num"><span class="pill p-g"><span class="ltr">0</span></span></td><td class="num">3.8%</td><td class="num">0</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">10.00</td><td><b>MUHAMMAD ARSHAD  YASEEN</b><div class="sub">4724316</div></td><td class="num">1</td><td class="num">11.50</td><td class="num">10.50</td><td class="num">91.3%</td><td class="num">0.04</td><td class="num">1.63</td><td class="num"><b class="big g-a-t">15</b></td><td class="num">100.0%</td><td class="num">1.43</td><td class="num"><span class="pill p-g"><span class="ltr">0</span></span></td><td class="num">3.8%</td><td class="num">1</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">11.00</td><td><b>MD AYON</b><div class="sub">4738432</div></td><td class="num">1</td><td class="num">11.75</td><td class="num">11.79</td><td class="num">100.0%</td><td class="num">0.35</td><td class="num">0.01</td><td class="num"><b class="big g-a-t">15</b></td><td class="num">100.0%</td><td class="num">1.27</td><td class="num"><span class="pill p-g"><span class="ltr">0</span></span></td><td class="num">3.8%</td><td class="num">5</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">12.00</td><td><b>LITON GOLDAR</b><div class="sub">4830484</div></td><td class="num">1</td><td class="num">11.50</td><td class="num">11.37</td><td class="num">98.9%</td><td class="num">0.27</td><td class="num">0.00</td><td class="num"><b class="big g-a-t">15</b></td><td class="num">100.0%</td><td class="num">1.32</td><td class="num"><span class="pill p-g"><span class="ltr">0</span></span></td><td class="num">3.8%</td><td class="num">2</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">13.00</td><td><b>SHER BAHADER DILDAR</b><div class="sub">4599420</div></td><td class="num">1</td><td class="num">11.00</td><td class="num">11.19</td><td class="num">100.0%</td><td class="num">0.00</td><td class="num">0.01</td><td class="num"><b class="big g-b-t">14</b></td><td class="num">93.3%</td><td class="num">1.25</td><td class="num"><span class="pos"><span class="ltr">-1</span></span></td><td class="num">3.5%</td><td class="num">0</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">14.00</td><td><b>MAZHAR UR REHMAN</b><div class="sub">4599475</div></td><td class="num">1</td><td class="num">11.00</td><td class="num">11.24</td><td class="num">100.0%</td><td class="num">0.00</td><td class="num">0.08</td><td class="num"><b class="big g-b-t">14</b></td><td class="num">93.3%</td><td class="num">1.25</td><td class="num"><span class="pos"><span class="ltr">-1</span></span></td><td class="num">3.5%</td><td class="num">0</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">15.00</td><td><b>MD NURUL HAQUE</b><div class="sub">4724208</div></td><td class="num">1</td><td class="num">11.25</td><td class="num">11.26</td><td class="num">100.0%</td><td class="num">0.00</td><td class="num">0.01</td><td class="num"><b class="big g-b-t">14</b></td><td class="num">93.3%</td><td class="num">1.24</td><td class="num"><span class="pos"><span class="ltr">-1</span></span></td><td class="num">3.5%</td><td class="num">0</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">16.00</td><td><b>EMAM HOSSAIN</b><div class="sub">4814766</div></td><td class="num">1</td><td class="num">11.75</td><td class="num">10.84</td><td class="num">92.3%</td><td class="num">0.00</td><td class="num">1.04</td><td class="num"><b class="big g-b-t">14</b></td><td class="num">93.3%</td><td class="num">1.29</td><td class="num"><span class="pos"><span class="ltr">-1</span></span></td><td class="num">3.5%</td><td class="num">1</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">17.00</td><td><b>ABBAS KHAN</b><div class="sub">2437496</div></td><td class="num">1</td><td class="num">11.50</td><td class="num">11.42</td><td class="num">99.3%</td><td class="num">0.00</td><td class="num">0.46</td><td class="num"><b class="big g-b-t">13</b></td><td class="num">86.7%</td><td class="num">1.14</td><td class="num"><span class="pos"><span class="ltr">-2</span></span></td><td class="num">3.3%</td><td class="num">1</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">18.00</td><td><b>MOHD AZAHAR MOHD</b><div class="sub">4599444</div></td><td class="num">1</td><td class="num">11.75</td><td class="num">10.20</td><td class="num">86.8%</td><td class="num">0.78</td><td class="num">1.23</td><td class="num"><b class="big g-b-t">13</b></td><td class="num">86.7%</td><td class="num">1.27</td><td class="num"><span class="pos"><span class="ltr">-2</span></span></td><td class="num">3.3%</td><td class="num">0</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">19.00</td><td><b>MUHAMMAD FAHAD SHAHZAD</b><div class="sub">4654650</div></td><td class="num">1</td><td class="num">12.00</td><td class="num">10.44</td><td class="num">87.0%</td><td class="num">1.71</td><td class="num">0.00</td><td class="num"><b class="big g-b-t">13</b></td><td class="num">86.7%</td><td class="num">1.25</td><td class="num"><span class="pos"><span class="ltr">-2</span></span></td><td class="num">3.3%</td><td class="num">0</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">20.00</td><td><b>AQIB HUSSAIN SHAH SAQIB</b><div class="sub">4724265</div></td><td class="num">1</td><td class="num">11.00</td><td class="num">11.36</td><td class="num">100.0%</td><td class="num">0.00</td><td class="num">0.86</td><td class="num"><b class="big g-b-t">13</b></td><td class="num">86.7%</td><td class="num">1.14</td><td class="num"><span class="pos"><span class="ltr">-2</span></span></td><td class="num">3.3%</td><td class="num">0</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">21.00</td><td><b>HAFIZ MOHAMMAD ANSAR</b><div class="sub">4724332</div></td><td class="num">1</td><td class="num">10.25</td><td class="num">10.50</td><td class="num">100.0%</td><td class="num">0.00</td><td class="num">0.00</td><td class="num"><b class="big g-b-t">13</b></td><td class="num">86.7%</td><td class="num">1.24</td><td class="num"><span class="pos"><span class="ltr">-2</span></span></td><td class="num">3.3%</td><td class="num">0</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">22.00</td><td><b>MUHAMMAD ILYAS KHAN</b><div class="sub">4724267</div></td><td class="num">1</td><td class="num">11.25</td><td class="num">11.15</td><td class="num">99.1%</td><td class="num">0.00</td><td class="num">0.11</td><td class="num"><b class="big g-b-t">12</b></td><td class="num">80.0%</td><td class="num">1.08</td><td class="num"><span class="pos"><span class="ltr">-3</span></span></td><td class="num">3.0%</td><td class="num">0</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">23.00</td><td><b>GULDAD GOHAR REHMAN</b><div class="sub">4737676</div></td><td class="num">1</td><td class="num">11.50</td><td class="num">10.86</td><td class="num">94.4%</td><td class="num">0.19</td><td class="num">0.46</td><td class="num"><b class="big g-b-t">12</b></td><td class="num">80.0%</td><td class="num">1.10</td><td class="num"><span class="pos"><span class="ltr">-3</span></span></td><td class="num">3.0%</td><td class="num">0</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">24.00</td><td><b>RAHEEM GULSHER</b><div class="sub">4599496</div></td><td class="num">1</td><td class="num">12.00</td><td class="num">10.17</td><td class="num">84.8%</td><td class="num">1.48</td><td class="num">0.36</td><td class="num"><b class="big g-c-t">11</b></td><td class="num">73.3%</td><td class="num">1.08</td><td class="num"><span class="pos"><span class="ltr">-4</span></span></td><td class="num">2.8%</td><td class="num">1</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">25.00</td><td><b>MD SAJJAD HOSSAIN</b><div class="sub">4504765</div></td><td class="num">1</td><td class="num">11.50</td><td class="num">10.38</td><td class="num">90.3%</td><td class="num">0.27</td><td class="num">1.05</td><td class="num"><b class="big g-c-t">10</b></td><td class="num">66.7%</td><td class="num">0.96</td><td class="num"><span class="pos"><span class="ltr">-5</span></span></td><td class="num">2.5%</td><td class="num">1</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">26.00</td><td><b>FAISAL UMAR SAIF  REHMAN</b><div class="sub">4552936</div></td><td class="num">1</td><td class="num">10.25</td><td class="num">10.27</td><td class="num">100.0%</td><td class="num">0.00</td><td class="num">0.71</td><td class="num"><b class="big g-c-t">10</b></td><td class="num">66.7%</td><td class="num">0.97</td><td class="num"><span class="pos"><span class="ltr">-5</span></span></td><td class="num">2.5%</td><td class="num">1</td><td><span class="tag tag-r">تجاوز الساعات المخططة</span></td></tr><tr><td class="num">27.00</td><td><b>SHADAB MEHTAB</b><div class="sub">4724435</div></td><td class="num">1</td><td class="num">12.00</td><td class="num">9.85</td><td class="num">82.1%</td><td class="num">2.04</td><td class="num">0.12</td><td class="num"><b class="big g-d-t">8</b></td><td class="num">53.3%</td><td class="num">0.81</td><td class="num"><span class="pos"><span class="ltr">-7</span></span></td><td class="num">2.0%</td><td class="num">3</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">28.00</td><td><b>RAHMAT KHAN AHMED</b><div class="sub">4817339</div></td><td class="num">1</td><td class="num">11.00</td><td class="num">8.17</td><td class="num">74.3%</td><td class="num">2.42</td><td class="num">0.64</td><td class="num"><b class="big g-d-t">7</b></td><td class="num">46.7%</td><td class="num">0.86</td><td class="num"><span class="pos"><span class="ltr">-8</span></span></td><td class="num">1.8%</td><td class="num">4</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">29.00</td><td><b>RAHIM ULLAH KHAN</b><div class="sub">4999088</div></td><td class="num">1</td><td class="num">10.25</td><td class="num">7.12</td><td class="num">69.5%</td><td class="num">0.96</td><td class="num">2.19</td><td class="num"><b class="big g-d-t">6</b></td><td class="num">40.0%</td><td class="num">0.84</td><td class="num"><span class="pos"><span class="ltr">-9</span></span></td><td class="num">1.5%</td><td class="num">0</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">30.00</td><td><b>MD EMON GAZI</b><div class="sub">4723954</div></td><td class="num">1</td><td class="num">11.25</td><td class="num">7.19</td><td class="num">63.9%</td><td class="num">3.88</td><td class="num">0.19</td><td class="num"><b class="big g-d-t">5</b></td><td class="num">33.3%</td><td class="num">0.70</td><td class="num"><span class="pos"><span class="ltr">-10</span></span></td><td class="num">1.3%</td><td class="num">3</td><td><span class="tag tag-ok">—</span></td></tr><tr><td class="num">31.00</td><td><b>SAID ALI SHAH GRAN BACHA</b><div class="sub">4552582</div></td><td class="num">1</td><td class="num">6.75</td><td class="num">0.76</td><td class="num">11.3%</td><td class="num">0.00</td><td class="num">6.00</td><td class="num"><b class="big g-d-t">1</b></td><td class="num">6.7%</td><td class="num">1.32</td><td class="num"><span class="pos"><span class="ltr">-14</span></span></td><td class="num">0.3%</td><td class="num">0</td><td><span class="tag tag-r">بحاجة إلى مراجعة</span></td></tr></tbody>
+</table></div>
+</div>
+<div class="note" style="margin-top:12px">«الفرق عن المستهدف» = مكتملات المندوب ناقص 15. الحضور الفردي محدود عند 100% إذا تجاوزت الساعات الفعلية المخططة. «ساعات مهدرة» و«توزيع يدوي» قيم مصدر لم يتوفر تعريفهما.</div>
+<h2>توزيع الأداء حسب مستوى الحضور</h2>
+<div class="panel">
+<div style="max-width:100%;overflow-x:auto"><table>
+<thead><tr><th>مستوى الحضور</th><th class="num">عدد المناديب</th><th class="num">إجمالي التوصيل</th><th class="num">متوسط المندوب</th><th class="num">الساعات المخططة</th><th class="num">الساعات الفعلية</th><th class="num">تنفيذ المخطط</th><th class="num">ساعات مهدرة (السجل)</th><th class="num">النسبة من الفريق</th></tr></thead>
+<tbody><tr><td><span class="dot g-d"></span>بدون حضور مسجّل</td><td class="num">0</td><td class="num">0</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.0%</td><td class="num">0.00</td><td class="num">0.0%</td></tr><tr><td><span class="dot g-d"></span>ساعات مخططة صفر · النسبة غير محددة</td><td class="num">0</td><td class="num">0</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.0%</td><td class="num">0.00</td><td class="num">0.0%</td></tr><tr><td><span class="dot g-d"></span>أقل من 60%</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">6.75</td><td class="num">0.76</td><td class="num">11.3%</td><td class="num">6.00</td><td class="num">3.2%</td></tr><tr><td><span class="dot g-c"></span>60% – 84%</td><td class="num">5</td><td class="num">37</td><td class="num">7.40</td><td class="num">56.50</td><td class="num">42.50</td><td class="num">75.2%</td><td class="num">3.50</td><td class="num">16.1%</td></tr><tr><td><span class="dot g-b"></span>85% – 99%</td><td class="num">15</td><td class="num">213</td><td class="num">14.20</td><td class="num">175.00</td><td class="num">161.74</td><td class="num">92.4%</td><td class="num">12.07</td><td class="num">48.4%</td></tr><tr><td><span class="dot g-a"></span>100%</td><td class="num">10</td><td class="num">144</td><td class="num">14.40</td><td class="num">109.75</td><td class="num">111.64</td><td class="num">101.7%</td><td class="num">1.91</td><td class="num">32.3%</td></tr></tbody>
+<tfoot><tr style="background:#0f3d5c;color:#fff;font-weight:700"><td>الإجمالي</td><td class="num">31</td><td class="num">395</td><td class="num">12.74</td><td class="num">348.00</td><td class="num">316.64</td><td class="num">91.0%</td><td class="num">23.48</td><td class="num">100%</td></tr></tfoot>
+</table></div>
+</div>
+<h2>قراءة العلاقة بين الحضور والإنتاجية</h2>
+<div class="panel"><ul>
+<li>لمناديب الساعات المخططة ≥ 6 (31 مندوباً)، معامل الارتباط الحسابي بين نسبة تنفيذ الساعات والمكتمل = <b><span class="ltr">0.77</span></b>، وبين نسبة تنفيذ الساعات ومكتمل/ساعة = <b><span class="ltr">0.21</span></b>.</li>
+<li>هذه علاقة وصفية على لقطة واحدة ولا تشرح السبب ولا تثبت أن الساعات تؤثر في عدد التوصيلات. قارِن الإنتاجية مع ساعات التعرض، خصوصاً عند المقامات الصغيرة.</li>
+<li>إنتاجية مجموعة المخطط ≥ 6 ساعات: <b>1.25</b> مكتمل/ساعة (31 مندوباً، 316.64 ساعة). عدد أصحاب المخطط الأقل من 6 ساعات: <b>0</b>.</li>
+<li>بلوغ 15 لكل مندوب يتطلب حسابياً <b>70</b> توصيلاً إضافياً على هذا الحجم من الفريق؛ هذا قياس للفجوة وليس تقديراً للطاقة أو وعداً بالتحسن.</li>
+</ul></div>
+<div class="note">الارتباط حسابي على لقطة واحدة، ولا يثبت السببية أو يبرر حكماً على الأفراد.</div>
+<h2>الإقرار والتوقيع</h2>
+<div class="panel">
+<div class="note" style="margin-bottom:16px">
+أعدّ إدارة عمليات نمو التوصيل هذا التقرير من جدول مناديب جدة الوارد أعلاه ومن تحليل حسابي مباشر
+عليه، وأُضيفت إليه مؤشرات مشتقة (تركّز، تشتت، ارتباط، فروق الساعات) دون أي رقم غير قابل للتتبع.
+لا يتضمن التقرير أهدافاً مفترفة، ولا نسب مسؤولية، ولا أحكاماً على أفراد مبنية على لقطة يوم واحد.
+الاعتماد على مستوى الشركة يبقى خالياً للتوقيع اليدوي.
+</div>
+<div class="sigrow">
+<div class="sigbox">
+<div class="lab">معدّ التقييم · إدارة العمليات</div>
+<div class="nm">Kamal</div>
+<div class="ttl">مسؤول العمليات</div>
+<span>التوقيع غير متاح في هذه النسخة</span>
+</div>
+<div class="sigbox">
+<div class="lab">اعتماد الشركة</div>
+<span class="sigline"></span></div>
+</div>
+</div>
+<footer>تقرير مؤشرات أداء المناديب – جدة · إدارة العمليات – مؤسسة نمو التوصيل للخدمات اللوجستية · 31 مندوباً · 395 توصيلاً من مستهدف 465 · تحقيق المستهدف 84.9% · التنفيذ 91.0% · الإنتاجية 1.25 توصيل/ساعة</footer>
+</div></body></html>
