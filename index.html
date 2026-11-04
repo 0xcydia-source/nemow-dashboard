@@ -492,9 +492,18 @@ function isolateHeaderDates(){
   }
  });
 }
+// Legacy profile volume and daily average come from Riders Distance, not Rider Performance.
+function clarifyDriverSources(){
+ document.querySelectorAll('#drivers .profile .mini > div').forEach(card=>{
+  const label=card.firstChild;if(!label||label.nodeType!==Node.TEXT_NODE)return;
+  if(label.data.trim()==='الطلبات')label.data='طلبات مصدر المسافة';
+  else if(label.data.trim()==='طلبات/يوم')label.data='طلبات المسافة/يوم قياس';
+ });
+}
 function selectDriver(id){
  selectedDriver=id;const select=document.getElementById('driverSelect');
  if(!select)return;
+ clarifyDriverSources();
  const found=Array.from(select.options).some(o=>o.value===id);
  document.querySelectorAll('#drivers .profile').forEach(c=>c.classList.toggle('hidden',!found||c.dataset.driver!==id));
  let note=document.getElementById('driverUnavailable');if(note)note.remove();
@@ -588,7 +597,7 @@ document.addEventListener('input',e=>{if(e.target.id==='assessmentSearch')filter
 // Restore only known route IDs; reportDate and other query state stay untouched.
 function restoreHashRoute(){let id;try{id=decodeURIComponent(location.hash.slice(1))}catch(e){return}if(!id)return;const tab=Array.from(document.querySelectorAll('nav [data-tab]')).find(b=>b.dataset.tab===id);if(tab&&document.getElementById(id))activate(id);}
 window.addEventListener('hashchange',restoreHashRoute);
-isolateHeaderDates();setupLabels();activate(activeTab);restoreHashRoute();
+isolateHeaderDates();clarifyDriverSources();setupLabels();activate(activeTab);restoreHashRoute();
 </script><script>const pinGate=document.getElementById('pinGate'),pinInput=document.getElementById('pinInput'),pinError=document.getElementById('pinError');document.getElementById('pinForm').addEventListener('submit',e=>{e.preventDefault();if(pinInput.value==='8000'){document.body.classList.remove('pin-locked');pinGate.hidden=true;pinInput.value='';pinError.textContent='';document.getElementById('globalPeriod').focus()}else{pinError.textContent='رمز الدخول غير صحيح. حاول مرة أخرى.';pinInput.value='';pinInput.focus()}});document.getElementById('pinLogout').addEventListener('click',()=>{document.body.classList.add('pin-locked');pinGate.hidden=false;pinInput.value='';pinError.textContent='';window.scrollTo(0,0);pinInput.focus()});pinInput.focus();</script><script id="executiveHomeScript">/* Executive summary of the already-selected performance source only.
    Fail closed for conflicting rows; never use another source as a fallback. */
 (function () {
