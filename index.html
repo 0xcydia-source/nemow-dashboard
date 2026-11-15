@@ -3613,8 +3613,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     root.replaceChildren(); root.classList.add('billing-view'); root.dir = 'rtl';
     const head = el('div', 'bl-head');
     head.append(el('h2', null, 'الفوترة والخصومات'));
-    head.append(el('p', 'bl-muted', 'فترة الفاتورة مستقلة عن فلتر الأداء العام؛ اختر شهر الفاتورة أدناه. تفكيك فاتورة هنقرستيشن: بنود الخصم، تاريخ كل واقعة، تسوية الراتب مقابل معيار ' + fmt(SAL) + ' ريال وهدف ' + fmt(TGT) + ' توصيلة — ثم مقارنة الشهرين.'));
+    head.append(el('p', 'bl-muted', 'فترة الفاتورة مستقلة عن فلتر الأداء العام؛ اختر شهر الفاتورة أدناه.'));
     root.append(head);
+    const warning = note('تنبيه مهم: التحليل التنفيذي السابق غير موثوق وأُوقف عرضه. أرقام الفوترة قيد المراجعة؛ لا تعتمد عليها لاتخاذ قرارات مالية أو لتقييم المناديب. أُخفيت التصنيفات المالية الفردية المبنية على توزيع تقديري لمبالغ الشركة.', 'warn');
+    warning.setAttribute('role', 'alert');
+    warning.style.cssText = 'border:3px solid #b42338;background:#fff0f1;color:#790b1c;padding:16px;font-weight:700;font-size:1.1em';
+    root.append(warning);
+    if (Number(data.version) >= 3) return;
 
     const switcher = el('div', 'bl-switch'); const buttons = [];
     const addBtn = (label, target) => { const b = el('button', null, label); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
@@ -3626,8 +3631,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const body = el('div'); root.append(body);
     const analysisHost = el('div', 'billing-analysis');
     const analysisTitle = el('div', 'bl-head');
-    analysisTitle.append(el('h2', null, 'التحليل التنفيذي — لماذا لم نصل إلى ' + fmt(data.monthly_target) + ' طلباً'));
-    analysisTitle.append(el('p', 'bl-muted', 'هدف الشركة الشهري مقابل الفواتير الفعلية، وتصنيف المناديـب: من ينتج، ومن يستنزف الخصومات، وأين يظهر نموّ في الطلبات لا يقابله نموّ في قيمة.'));
+    analysisTitle.append(el('h2', null, 'التحليل التنفيذي — متوقف للمراجعة'));
     analysisHost.append(analysisTitle);
     if (global.BillingAnalysis) { try { global.BillingAnalysis.render(analysisHost, data); } catch (e) { analysisHost.append(el('p', 'bl-warn', 'تعذّر تحميل التحليل.')); } }
     root.append(analysisHost);
@@ -3647,8 +3651,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const fleetTarget = TGT * R.length, ach = (t.orders / fleetTarget) * 100;
       const met = R.filter(p => p.orders >= TGT);
       const dated = t.dated_provable, monthly = t.monthly_rules;   // v2-only: dated-lines model
-      const maxDed = Math.max(...R.map(p => p.ded_total), 1);
-      const highest = R.slice().sort((a, b) => b.ded_total - a.ded_total)[0];
+      const allocatedFinance = Number(data.version) >= 3;
+      const highest = allocatedFinance ? null : R.slice().sort((a, b) => b.ded_total - a.ded_total)[0];
 
       const hero = el('div', 'bl-hero');
       hero.append(el('strong', null, 'الخصم ' + pct(t.ded_pct, 2) + ' من الاستحقاق — ' +
@@ -3667,7 +3671,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       }
       hero.append(hp); body.append(hero);
 
-      body.append(kpi([
+      if (!allocatedFinance) body.append(kpi([
         ['إجمالي الخصومات', num(t.ded_total), 'ريال · ' + pct(t.ded_pct, 2) + ' من الاستحقاق'],
         ['الخصم لكل مندوب', num(t.ded_total / R.length), 'ريال · ' + pct(t.ded_total / R.length / SAL * 100, 1) + ' من معيار ' + fmt(SAL)],
         ['أعلى خصم فردي', num(highest.ded_total), (highest.name || '') + ' · ' + pct(highest.ded_total / SAL * 100, 1) + ' من المعيار', true],
@@ -3701,6 +3705,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       }
       split.append(c1, c2); body.append(split);
 
+      if (!allocatedFinance) {
       const c3 = card('توزيع الخصم مقابل معيار ' + fmt(SAL) + ' ريال');
       const b3 = chartBox(c3);
       const buckets = [['0 — بلا خصم', p => p.ded_total === 0], ['حتى 5٪', p => p.ded_total > 0 && p.ded_total < SAL * .05],
@@ -3714,6 +3719,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if (high) c3.append(note(high + ' مندوباً خُصم من كل واحد منهم أكثر من 15٪ من المعيار. أعلى خمسة: ' +
         R.slice().sort((a, b) => b.ded_total - a.ded_total).slice(0, 5).map(p => (p.name || p.rider_id) + ' ' + pct(p.ded_total / SAL * 100, 1)).join(' · ') + '.', 'decision'));
       body.append(c3);
+      }
 
       const ord = R.slice().sort((a, b) => b.orders - a.orders);
       const half = Math.ceil(ord.length / 2), maxOrd = Math.max(...ord.map(p => p.orders), TGT);
@@ -3726,6 +3732,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       body.append(split2);
       body.append(note(met.length + ' مندوباً بلغوا ' + fmt(TGT) + ' توصيلة. الأدنى: ' + ord.slice(-3).reverse().map(p => (p.name || p.rider_id) + ' ' + fmt(p.orders)).join(' · ') + '.', 'decision'));
 
+      if (!allocatedFinance) {
       const rate = R.slice().sort((a, b) => b.ded_pct - a.ded_pct), maxRate = Math.max(...rate.map(p => p.ded_pct), 5);
       const c4 = card('نسبة الخصم من الاستحقاق لكل مندوب'); const b4 = chartBox(c4);
       for (const p of rate) {
@@ -3738,6 +3745,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         b4.append(row);
       }
       body.append(c4);
+      }
 
       const ledRows = [];
       for (const p of R) for (const d of (p.decl || [])) ledRows.push([shortDate(d[0]) + ' — ' + dayName(d[0]), p.name || p.rider_id, 'رفض — ' + d[1] + ' وحدة × 50', num(d[2])]);
@@ -3759,6 +3767,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         body.append(c6);
       }
 
+      if (!allocatedFinance) {
       const sal = R.slice().sort((a, b) => b.entitlement - a.entitlement);
       const c7 = card('تسوية الراتب — الاستحقاق ← الخصم ← المحفظة ← الصافي');
       const w3 = el('div', 'bl-scroll');
@@ -3774,6 +3783,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       c7.append(w3);
       c7.append(note('إجمالي صافي مستحق المناديب ' + fmt(sal.reduce((s, p) => s + p.net_after, 0), 2) + ' ريال بعد الخصم والمحفظة المحتجزة.', 'note'));
       body.append(c7);
+      }
     }
 
     function drawComparison() {
@@ -3822,6 +3832,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const l2 = el('span'); const i2 = el('i'); i2.style.background = '#b42338'; l2.append(i2, document.createTextNode('أكتوبر'));
       legend.append(l1, l2); b.append(legend); body.append(c);
 
+      if (Number(data.version) < 3) {
       const c2 = card('أكبر التغيرات على مستوى المندوب');
       const w2 = el('div', 'bl-scroll');
       const movers = (C.movers || []).slice(0, 20);
@@ -3833,6 +3844,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       c2.append(w2);
       c2.append(note('الفرق موجب = خصم أعلى في أكتوبر. الحالة «جديد في أكتوبر» يعني مندوباً لم يظهر في فاتورة سبتمبر.', 'note'));
       body.append(c2);
+      }
 
       const c3 = card('تحليل التغير — حجم أم سلوك؟');
       const datedDiff = (o.dated || 0) - (s.dated || 0);
@@ -3867,230 +3879,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     try { render(root, JSON.parse(raw.textContent)); }
     catch (e) { root.textContent = 'تعذّر تحميل بيانات الفوترة.'; }
   });
-})(window);</script><script id="billingAnalysisScript">/* Billing analysis — the owner question: why is the 16,000/month target missed,
-   who are the good drivers, and where is the growth that is not real growth.
-   Reads the same allowlisted payload as billing_view.js. */
+})(window);</script><script id="billingAnalysisScript">/* Executive analysis is withheld until its inputs and conclusions are verified. */
 (function (global) {
   'use strict';
-  const fmt = (v, d) => v == null || !isFinite(v) ? '—' : new Intl.NumberFormat('ar', {maximumFractionDigits: d == null ? 0 : d}).format(v);
-  const pct = (v, d) => v == null ? '—' : fmt(v, d == null ? 1 : d) + '%';
-  const sgn = v => v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v), Math.abs(v) % 1 ? 2 : 0);
-  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
-  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
-  const num = (v, d) => { const n = document.createElement('bdi'); n.dir = 'ltr'; n.textContent = fmt(v, d); return n; };
-  const card = (title) => { const c = el('div', 'bl-card'); if (title) c.append(el('h3', null, title)); return c; };
-  const note = (text, kind) => el('div', 'bl-' + (kind || 'note'), text);
-
-  const STATUS = {
-    good: {label: 'مندوب جيّد', cls: 'good'},
-    watch: {label: 'متابعة', cls: 'watch'},
-    bad: {label: 'إشارة متابعة قوية', cls: 'bad'}
-  };
-
-  function table(headers, rows, cls) {
-    const t = el('table', cls || 'bl-table'); const th = el('thead'); const tr = el('tr');
-    for (const h of headers) tr.append(el('th', null, h));
-    th.append(tr); t.append(th);
-    const tb = el('tbody');
-    for (const r of rows) {
-      const row = el('tr');
-      for (const c of r) {
-        const td = el('td');
-        if (c && c.nodeType) td.append(c); else td.textContent = c == null ? '—' : c;
-        row.append(td);
-      }
-      tb.append(row);
-    }
-    t.append(tb);
-    const w = el('div', 'bl-scroll'); w.append(t); return w;
+  function render(root) {
+    if (!root) return;
+    const warning = document.createElement('div');
+    warning.className = 'bl-warn';
+    warning.setAttribute('role', 'alert');
+    warning.textContent = 'تنبيه: التحليل التنفيذي السابق غير موثوق وقد يتضمن استنتاجات وأرقاماً غير مستندة إلى المصدر؛ أُوقف عرضه لحين مراجعته. لا تعتمد عليه لاتخاذ قرارات.';
+    root.append(warning);
   }
-  function chip(v) { return el('span', 'bl-chip ' + v, v.toUpperCase()); }
-  function driverCell(r) {
-    const box = el('span', 'bl-drv');
-    const nm = el('b', null, r.name || String(r.rider_id));
-    nm.dir = 'ltr'; nm.style.textAlign = 'right';
-    const id = el('small', null, String(r.rider_id));
-    box.append(nm, id); return box;
-  }
-  function barRow(label, value, max, color, suffix) {
-    const row = el('div', 'bl-brow');
-    row.append(el('div', 'bl-lab', label));
-    const val = el('div', 'bl-val'); val.append(num(value, value % 1 ? 2 : 0));
-    if (suffix) val.append(document.createTextNode(' ' + suffix));
-    row.append(val);
-    const bar = el('div', 'bl-bar'); const fill = el('div', 'bl-fill');
-    fill.style.width = Math.max(0, Math.min(100, value / (max || 1) * 100)) + '%';
-    fill.style.background = color; bar.append(fill); row.append(bar);
-    return row;
-  }
-
-  function render(root, data) {
-    const A = data.analysis, M = data.months || [];
-    if (!A) { root.textContent = 'لا توجد بيانات تحليل.'; return; }
-    const view = el('div');
-    root.append(view);
-
-    const monthLabel = k => (M.find(m => m['key'] === k) || {}).lab || k;
-    const CO = A.company, OI = A.october_if, TH = A.thin_summary;
-    const last = M[M.length - 1], lastT = last.tot;
-
-    // ---------------- hero
-    const hero = el('div', 'bl-hero');
-    hero.append(el('strong', null, 'الفجوة مقابل هدف ' + fmt(data.monthly_target) + ' طلباً — ' +
-      A.months.map(x => monthLabel(x['key']) + ' ' + fmt(x.orders)).join(' · ')));
-    const hp = el('p');
-    hp.append(document.createTextNode('أفضل شهر: ' + monthLabel(last['key']) + ' بإجمالي '));
-    hp.append(num(lastT.orders)); hp.append(document.createTextNode(' طلباً = '));
-    hp.append(num(lastT.target_pct, 1)); hp.append(document.createTextNode(' من الهدف، بفجوة '));
-    hp.append(num(-lastT.target_gap)); hp.append(document.createTextNode(' طلباً. متوسط الشركة '));
-    hp.append(num(CO.orders_per_driver_day, 2)); hp.append(document.createTextNode(' توصيلة لكل يوم عمل، والهدف التشغيلي '));
-    hp.append(num(data.target_per_day)); hp.append(document.createTextNode(' يومياً.'));
-    hero.append(hp); view.append(hero);
-
-    // ---------------- target gap
-    view.append(elKpis([
-      ['هدف الشركة الشهري', num(data.monthly_target), 'طلباً — الهدف الذي لم يُحقق'],
-      ['أعلى شهر (' + monthLabel(last['key']) + ')', num(lastT.orders), pct(lastT.target_pct, 1) + ' من الهدف'],
-      ['الفجوة في أفضل شهر', num(-lastT.target_gap), 'طلباً', true],
-      ['قيمة الفجوة', num(OI.value_of_missing_orders), 'ريال استحقاق بالمتوسط الحالي', true],
-      ['توصية/يوم عمل — الشركة', num(CO.orders_per_driver_day, 2), 'الأفضل ' + fmt(Math.max(...A.months.map(m => m.orders_per_driver_day)), 2)],
-      ['أيام عمل مطلوبة للهدف', num(OI.driver_days_needed), 'لدينا ' + fmt(OI.driver_days, 0) + ' في ' + monthLabel(OI.month)]
-    ]));
-
-    const gapCard = card('من أين تأتي الفجوة؟ — ثلاثة مصادر فقط');
-    const g = el('div', 'bl-scroll');
-    g.append(table(['الشهر', 'الطلبات', 'الهدف', 'الفجوة', 'التغطية', 'أيام العمل', 'توصية/يوم', 'مندوب', 'مندوب بلغ 450', 'أقل من 300'],
-      A.months.map(m => [
-        el('b', null, monthLabel(m['key'])),
-        num(m.orders), num(m.target), num(-m.gap), pct(m.target_pct, 1),
-        num(m.driver_days, 0), num(m.orders_per_driver_day, 2), num(m.riders),
-        num(m.riders_meeting_450), num(m.riders_below_300)
-      ])));
-    gapCard.append(g);
-    gapCard.append(note('الفجوة = (عدد المناديب الفعّالين × أيام العمل × التوصيات في اليوم) − الهدف. الحساب أدناه يفصل كل عامل على حدة لشهر ' +
-      monthLabel(OI.month) + ': نحتاج ' + fmt(OI.driver_days_needed) + ' يوم عمل بوتيرة ' + fmt(OI.pace, 2) +
-      ' لكل يوم، أو ' + fmt(OI.extra_driver_days) + ' يوم عمل إضافي بنفس الوتيرة — أي ما يعادل ' +
-      fmt(OI.riders_at_owner_pace, 1) + ' مندوباً يعمل 31 يوماً بوتيرة ' + fmt(data.target_per_day) + '.', 'decision'));
-    view.append(gapCard);
-
-    const ifCard = card('لو — أعلى سيناريو واقعي لشهر ' + monthLabel(OI.month));
-    ifCard.append(note('إذا رفعنا وتيرة كل مندوب من ' + fmt(OI.pace, 2) + ' إلى ' + fmt(data.target_per_day) +
-      ' توصيلة/يوم مع نفس ' + fmt(OI.driver_days, 0) + ' يوم عمل: ' + fmt(OI.owners_pace_orders) +
-      ' طلباً فقط، أي ما زالت هناك ' + fmt(OI.orders_left_by_pace) +
-      ' طلباً أقل من الهدف. والسبب بنيوي: ' + fmt(OI.riders_actual) + ' مندوباً × 31 يوماً × ' +
-      fmt(data.target_per_day) + ' = ' + fmt(OI.riders_actual * 31 * data.target_per_day) +
-      ' طلباً كحد أقصى، أي أن الهدف ' + fmt(data.monthly_target) + ' يتطلب ' +
-      fmt(Math.ceil(data.monthly_target / (31 * data.target_per_day))) + ' مندوباً يعملون كل يوم العمل بوتيرة كاملة.', 'warn'));
-    view.append(ifCard);
-
-    // ---------------- good / bad drivers
-    const drv = Object.values(A.drivers);
-    const good = drv.filter(d => d.status === 'good').sort((a, b) => b.orders - a.orders);
-    const bad = drv.filter(d => d.status === 'bad').sort((a, b) => b.orders - a.orders);
-    const watch = drv.filter(d => d.status === 'watch').sort((a, b) => b.orders - a.orders);
-
-    const goodCard = card('المناديـب الجيّدون — بوتيرة الهدف ' + fmt(data.target_per_day) + '/يوم مع خصم أقل من 4%');
-    const gt = el('div', 'bl-scroll');
-    gt.append(table(['المندوب', 'الرقم', 'الشهور', 'الطلبات', 'أيام العمل', 'توصية/يوم', 'نسبة من الهدف', 'الخصم %', 'الدرجة', 'ريال/طلب'],
-      good.map(d => [el('b', null, d.name), num(d.rider_id), num(d.monitored), num(d.orders), num(d.working_days, 0),
-        num(d.orders_per_day, 2), pct(d.pace_vs_owner, 1), pct(d.ded_share_of_gross, 2), d.latest_segment || '—', num(d.value_per_order, 2)])));
-    goodCard.append(gt);
-    goodCard.append(note('هذان المندوبان فقط بلغا وتيرة ' + fmt(data.target_per_day) + ' توصيلة/يوم مع خصم منخفض. مندوبون بوتيرة قريبة لكنهم خارج الفئة: ' +
-      watch.filter(d => d.orders_per_day >= 14 && d.ded_share_of_gross < 4).map(d => d.name + ' ' + fmt(d.orders_per_day, 2) + '/يوم').join(' · '), 'note'));
-    view.append(goodCard);
-
-    const badCard = card('إشارات المتابعة القوية — تحت 10 توصية/يوم أو درجة E أو خصم يلتهم >10%');
-    badCard.append(note('هذه إشارات متابعة تشغيلية، وليست استبعاداً إدارياً. تُفرز حسب الطلبات حتى يعرف المسؤول من يخسر أكثر.', 'warn'));
-    const bt = el('div', 'bl-scroll');
-    bt.append(table(['المندوب', 'الرقم', 'الشهور', 'الطلبات', 'أيام العمل', 'توصية/يوم', 'نسبة من الهدف', 'الخصم', 'الخصم %', 'درجة', 'غياب مسجل'],
-      bad.map(d => [el('b', null, d.name), num(d.rider_id), num(d.monitored), num(d.orders), num(d.working_days, 0),
-        num(d.orders_per_day, 2), pct(d.pace_vs_owner, 1), num(d.ded_total, 2), pct(d.ded_share_of_gross, 2), d.latest_segment || '—', num(d.missed_days, 0)])));
-    badCard.append(bt);
-    view.append(badCard);
-
-    // ---------------- production loss
-    const lossCard = card('حيث تُفقد الطلبات — إنتاج ضعيف مقابل وتيرة الهدف');
-    const tp = A.pace_lost_orders.slice(0, 12);
-    const maxLoss = Math.max(...tp.map(x => Math.max(0, data.target_per_day * x.working_days - x.orders)), 1);
-    const lb = el('div', 'bl-chartbox');
-    for (const x of tp) {
-      lb.append(barRow(x.name + ' · ' + x.rider_id, Math.max(0, data.target_per_day * x.working_days - x.orders), maxLoss, '#b42338', 'طلب مفقود'));
-    }
-    lossCard.append(lb);
-    lossCard.append(note('الأرقام = (المطلوب بوتيرة ' + fmt(data.target_per_day) + ' × أيام العمل المسجلة) − الطلبات الفعلية. ' +
-      'المناديـب التي تعمل أياماً كافية لكنها لا تصل للوتيرة هي المشكلة القابلة للإصلاح بالتشغيل، وليست مشكلة عدد مناديب.', 'decision'));
-    view.append(lossCard);
-
-    // ---------------- ghost growth
-    const ghostCard = card('النمو الوهمي — زيادة الطلبات مقابل ما دفعته فعلاً');
-    const gg = el('div', 'bl-scroll');
-    gg.append(table(['من', 'إلى', 'تغير الطلبات', 'تغير توصية/يوم', 'تغير المناديب', 'تغير أيام العمل', 'تغير القيمة', 'تغير ريال/طلب', 'تغير الخصم', 'تغير الصافي'],
-      A.ghost.map(x => [monthLabel(x.from), monthLabel(x.to),
-        document.createTextNode(sgn(x.orders_delta) + ' (' + pct(x.orders_pct, 1) + ')'),
-        document.createTextNode(sgn(x.orders_per_day_delta)), document.createTextNode(sgn(x.riders_delta)),
-        document.createTextNode(sgn(x.driver_days_delta)), num(x.earned_delta), num(x.order_value_delta, 3),
-        num(x.penalties_delta, 2), num(x.net_delta, 2)])));
-    ghostCard.append(gg);
-    const thinM = A.thin_summary;
-    ghostCard.append(note('النمط المتكرر: الطلبات تنمو بعدد المناديب وأيام العمل، لا بإنتاجية المندوب. ' +
-      fmt(thinM.count) + ' مندوباً تحت 12 توصية/يوم يستهلكون ' + pct(thinM.share_of_driver_days, 1) +
-      ' من أيام العمل وينتجون ' + pct(thinM.share_of_orders, 1) + ' من الطلبات، وتراكم عليهم ' +
-      fmt(thinM.penalties, 0) + ' ريال خصومات. لو رفعوا للوتيرة الهدف لاستُعيد ' + fmt(thinM.orders_lost_vs_pace) +
-      ' طلباً دون تعيين مندوب واحد.', 'warn'));
-    view.append(ghostCard);
-
-    // ---------------- penalties
-    const penCard = card('تسريب الخصومات — أكبر مولّدي الخصم');
-    const pt = A.penalty_top.slice(0, 12);
-    const maxPen = Math.max(...pt.map(x => x.ded_total), 1);
-    const pb = el('div', 'bl-chartbox');
-    for (const x of pt) pb.append(barRow(x.name + ' · ' + x.rider_id, x.ded_total, maxPen, '#bc8c20', 'ريال'));
-    penCard.append(pb);
-    penCard.append(note('الخصم الإجمالي بعد كل الأشهر ' + fmt(CO.ded_total, 0) + ' ريال = ' + pct(CO.ded_pct, 2) +
-      ' من الاستحقاق. ملاحظة مصدرية: صفوف مناديـب هذه الفواتير لا تعيد بناء إجمالي الشركة في كل شهر (أعمدة المكافآت تدور). ' +
-      'لذلك وُزّع مبلغ الشركة على المناديـب بنسبة وحداتهم من نفس الفاتورة، والمجموع يطابق الفاتورة بالكامل.', 'note'));
-    view.append(penCard);
-
-    // ---------------- data gaps
-    const gapCard2 = card('حدود القراءة — ما لا تحسمه هذه الفواتير');
-    const ul = el('ul', 'bl-limits');
-    for (const m of M) {
-      const sc = (m.reconciliation && m.reconciliation.scales) || {};
-      const usingUnits = ['basic', 'distance', 'segment'].some(k => (sc[k] || 0) > 0);
-      ul.append(el('li', null, monthLabel(m['key']) + ': ' + m.tot.riders + ' مندوباً · ' + fmt(m.tot.orders) +
-        ' طلباً · قيمة ' + fmt(m.tot.order_value, 2) + ' ريال/طلب · توزيع القيمة ' +
-        (usingUnits ? 'بأعمدة المكافآت في Breakdown' : 'على الطلبات (أعمدة المكافآت في Breakdown لا تُعيد بناء مبلغ الشركة)') +
-        (m.reconciliation.assumptions && m.reconciliation.assumptions.length ? ' · ' + m.reconciliation.assumptions.join(' ') : '')));
-    }
-    ul.append(el('li', null, 'الفاتورة لا تحتوي بيانات دقيقة باليوم لكل مندوب (لذلك لا يوجد تحليل ساعي أو أيام ذروة من هذه الفواتير وحدها).'));
-    ul.append(el('li', null, 'ساعات العمل المسجلة في Breakdown تُستخدم في حساب توصية/ساعة، لكن 15 توصية/يوم هي معيار الشركة وليست استنتاجاً من الساعات.'));
-    gapCard2.append(ul);
-    view.append(gapCard2);
-  }
-
-  function elKpis(items) {
-    const box = el('div', 'bl-kpis');
-    for (const [label, value, sub, red] of items) {
-      const c = el('div', 'bl-kpi' + (red ? ' red' : ''));
-      c.append(el('small', null, label));
-      const s = el('strong'); s.append(value && value.nodeType ? value : document.createTextNode(value)); c.append(s);
-      if (sub) c.append(el('span', null, sub));
-      box.append(c);
-    }
-    return box;
-  }
-
-  function sourcesCard(data) {
-    const box = el('div', 'bl-card bl-sources');
-    box.append(el('h3', null, 'المصادر وحدود القراءة'));
-    const ul = el('ul');
-    for (const s of data.sources || []) {
-      const li = el('li'); li.append(el('b', null, s.name + ': ')); li.append(document.createTextNode(s.scope || '')); ul.append(li);
-    }
-    for (const n of data.notes || []) ul.append(el('li', null, n));
-    box.append(ul); return box;
-  }
-
   global.BillingAnalysis = {render};
 })(window);
 </script></body></html>
