@@ -102,6 +102,30 @@ table code{font-size:11.5px;background:#f1f5f9;padding:1px 5px;border-radius:4px
   .note ul li{margin-bottom:4px}
   footer{margin-top:18px}
 }
+
+.daily-visuals {margin-block:12px;color:#152b3a}
+.daily-visuals-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.daily-visual-card {background:#fff;border:1px solid #cbd8df;border-radius:10px;padding:12px;min-width:0;break-inside:avoid}
+.daily-visual-profile {grid-column:1/-1}
+.daily-visual-card h3,.daily-visual-card p {margin-block:0 6px}
+.daily-visual-label {display:flex;justify-content:space-between;gap:8px;margin-block:7px 3px}
+.daily-track {position:relative;height:9px;border:1px solid #748e9d;border-radius:5px;background:#f1f6f8}
+.daily-fill {display:block;height:100%;border-radius:4px;background:#006770}
+.daily-reference {background:#547381}
+.daily-marker {position:absolute;inset-block:-3px;inline-size:2px;background:#111827}
+.daily-profile-grid {display:grid;grid-template-columns:minmax(140px,220px) minmax(0,1fr);gap:16px;align-items:center}
+.daily-hex {position:relative;aspect-ratio:1;margin:10px auto;width:100%;max-width:205px;direction:ltr}
+.daily-hex-ring,.daily-hex-inner {position:absolute;inset:0;clip-path:polygon(50% 2%,91.57% 26%,91.57% 74%,50% 98%,8.43% 74%,8.43% 26%);background:#587684}
+.daily-hex-inner {transform:scale(.972);background:#fff}
+.daily-hex-spoke {position:absolute;top:50%;left:50%;width:48%;height:1px;transform-origin:left;background:#a9bdc6}
+.daily-hex-dot,.daily-hex-label {position:absolute;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center}
+.daily-hex-dot {width:9px;height:9px;border:1px solid #00424b;background:#006770}
+.daily-hex-label {width:1.3em;height:1.3em;background:white;border:1px solid #748e9d;color:#152b3a;font-size:12px}
+.daily-axes {list-style:none;margin:0;padding:0;font-size:.9em}
+.daily-axes li {border-block-end:1px solid #d7e2e8;padding-block:4px}
+.daily-axes span {display:block}
+@media (max-width:640px) {.daily-visuals-grid,.daily-profile-grid {grid-template-columns:minmax(0,1fr)} .daily-hex {max-width:170px}}
+@media print {.daily-visuals {-webkit-print-color-adjust:exact;print-color-adjust:exact} .daily-visual-card {break-inside:avoid} .daily-hex {max-width:155px}}
 </style></head>
 <body><div style="padding:16px;background:#eef6fa;text-align:center"><a href="../index.html">← لوحة الأداء</a> · <a href="../report-history.html">سجل التقارير</a><p>التاريخ بتحديد المالك؛ المصدر بلا عمود تاريخ. نسخة محفوظة لا تستبدل الأيام الأخرى.</p></div><div class="wrap">
 <header>
@@ -174,7 +198,7 @@ table code{font-size:11.5px;background:#f1f5f9;padding:1px 5px;border-radius:4px
 <div class="val" style="color:#334155">13</div>
 <div class="hint">طلبًا · على 12 مندوبًا · تعريف الحقل غير متاح</div>
 </div>
-</div>
+</div><div class="daily-visuals"><h2>قراءة بصرية لبيانات اليوم</h2><p>المصدر: كشف الأداء اليومي نفسه. تستبعد المقارنات القيم الناقصة ولا تحوّلها إلى أصفار.</p><div class="daily-visuals-grid"><div class="daily-visual-card"><h3>التوصيل مقابل المستهدف</h3><p>التغطية: 32 من 32 سجلًا قابلًا للمقارنة.</p><div class="daily-visual-label"><span>المكتمل</span><b>400 توصيل</b></div><div aria-hidden="true" class="daily-track"><span class="daily-fill" style="width:83.333333%"></span><span class="daily-marker" style="inset-inline-start:calc(100.000000% - 1px)"></span></div><div class="daily-visual-label"><span>المستهدف لأيام العمل المسجلة</span><b>480 توصيل</b></div><div aria-hidden="true" class="daily-track"><span class="daily-fill daily-reference" style="width:100.000000%"></span><span class="daily-marker" style="inset-inline-start:calc(100.000000% - 1px)"></span></div><p>المقياس: 0–480 توصيل؛ الخط العمودي = القيمة المرجعية.</p></div><div class="daily-visual-card"><h3>الساعات الفعلية مقابل المخططة</h3><p>التغطية: 32 من 32 سجلًا قابلًا للمقارنة.</p><div class="daily-visual-label"><span>الفعلية</span><b>351.78 ساعة</b></div><div aria-hidden="true" class="daily-track"><span class="daily-fill" style="width:96.709278%"></span><span class="daily-marker" style="inset-inline-start:calc(100.000000% - 1px)"></span></div><div class="daily-visual-label"><span>المخططة</span><b>363.75 ساعة</b></div><div aria-hidden="true" class="daily-track"><span class="daily-fill daily-reference" style="width:100.000000%"></span><span class="daily-marker" style="inset-inline-start:calc(100.000000% - 1px)"></span></div><p>المقياس: 0–363.75 ساعة؛ الخط العمودي = القيمة المرجعية.</p></div><div class="daily-visual-card daily-visual-profile"><h3>ملخص الأداء — ستة محاور</h3><p>الحافة = 100٪؛ النقاط تمثل نسبًا مستقلة، وليست درجة إجمالية. المحور غير المتاح بلا نقطة.</p><div class="daily-profile-grid"><div aria-hidden="true" class="daily-hex"><span class="daily-hex-ring"></span><span class="daily-hex-inner"></span><span class="daily-hex-spoke" style="transform:rotate(-90deg)"></span><span class="daily-hex-label" style="left:50.0000%;top:-5.0000%">1</span><span class="daily-hex-dot" style="left:50.0000%;top:10.0000%"></span><span class="daily-hex-spoke" style="transform:rotate(-30deg)"></span><span class="daily-hex-label" style="left:97.6314%;top:22.5000%">2</span><span class="daily-hex-dot" style="left:61.6913%;top:43.2500%"></span><span class="daily-hex-spoke" style="transform:rotate(30deg)"></span><span class="daily-hex-label" style="left:97.6314%;top:77.5000%">3</span><span class="daily-hex-dot" style="left:90.2013%;top:73.2102%"></span><span class="daily-hex-spoke" style="transform:rotate(90deg)"></span><span class="daily-hex-label" style="left:50.0000%;top:105.0000%">4</span><span class="daily-hex-dot" style="left:50.0000%;top:96.5000%"></span><span class="daily-hex-spoke" style="transform:rotate(150deg)"></span><span class="daily-hex-label" style="left:2.3686%;top:77.5000%">5</span><span class="daily-hex-dot" style="left:15.3373%;top:70.0125%"></span><span class="daily-hex-spoke" style="transform:rotate(210deg)"></span><span class="daily-hex-label" style="left:2.3686%;top:22.5000%">6</span><span class="daily-hex-dot" style="left:24.0192%;top:35.0000%"></span></div><ol class="daily-axes"><li><b>1. إنجاز مستهدف التوصيل: 83.33٪</b><span>400 توصيل مكتمل ÷ 480 توصيل مستهدف · التغطية 32 من 32</span></li><li><b>2. بلوغ مستهدف التوصيل: 28.12٪</b><span>9 مندوب بلغ المستهدف ÷ 32 مندوب قابل للمقارنة · التغطية 32 من 32</span></li><li><b>3. تنفيذ الساعات المخططة: 96.71٪</b><span>351.78 ساعة فعلية ÷ 363.75 ساعة مخططة · التغطية 32 من 32</span></li><li><b>4. بلوغ الحد الأدنى للساعات: 96.88٪</b><span>31 مندوب سجّل 10 ساعات فأكثر ÷ 32 مندوب بساعات مسجلة · التغطية 32 من 32</span></li><li><b>5. وتيرة التوصيل في الساعة: 83.39٪</b><span>400 توصيل مكتمل ÷ 479.7 توصيل مرجعي (15 ÷ 11 ساعة × الساعات الفعلية) · التغطية 32 من 32</span></li><li><b>6. الخلو من غير الموزّع يدوياً: 62.5٪</b><span>20 سجل بلا طلب غير موزّع يدوياً ÷ 32 سجل بقيمة مسجلة · التغطية 32 من 32</span></li></ol></div></div></div></div>
 <h2>ملخص تنفيذي</h2>
 <div class="panel"><ul>
 <li>أنجز الفريق <b>400</b> توصيلاً من مستهدف <b>480</b> (32 مندوباً × 15 توصيل)، بنسبة <b>83.3%</b> ومتوسط <b>12.50</b> ووسيط <b>12</b> توصيل للمندوب.</li>
