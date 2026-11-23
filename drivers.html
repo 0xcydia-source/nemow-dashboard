@@ -820,7 +820,8 @@ footer{margin-top:22px;font-size:11px;color:#94a3b8;text-align:center}
     return '<div class="pstrip"><span class="fill" style="width:' + x(mine).toFixed(2) + '%"></span>' +
       '<span class="t4" style="inset-inline-start:' + x(top).toFixed(2) + '%"></span>' +
       '<span class="tg" style="inset-inline-start:' + x(target).toFixed(2) + '%"></span>' +
-      '<span class="lab" style="inset-inline-start:' + Math.min(64, x(mine) + 2).toFixed(2) + '%">' + ltr(f(mine, 3)) + '</span></div>' +
+      '<span class="lab" style="inset-inline-start:' + Math.min(x(mine) + 2, 88).toFixed(2) + '%;' +
+      (x(mine) > 70 ? 'color:#fff' : '') + '">' + ltr(f(mine, 3)) + '</span></div>' +
       '<div class="legend"><span><i style="background:#0e7490"></i>' + esc(t('stripMine')) + '</span>' +
       '<span><i style="background:#16a34a"></i>' + esc(t('stripTop')) + ' ' + ltr(f(top, 3)) + '</span>' +
       '<span><i style="background:#d97706"></i>' + esc(t('stripTarget')) + ' ' + ltr(f(target, 3)) + '</span>' +
