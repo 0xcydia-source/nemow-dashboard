@@ -1113,6 +1113,7 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
   function showGate(error) {
     ME = null;
     try { localStorage.removeItem('nemow-driver'); } catch (e) {}
+    try { sessionStorage.removeItem('nemow-driver'); } catch (e) {}
     var app = document.getElementById('app');
     app.hidden = true;
     app.innerHTML = '';
@@ -1149,7 +1150,6 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       var rider = D.riders[id];
       if (!rider) { showGate(t('gateErr')); return; }
       ME = rider;
-      try { localStorage.setItem('nemow-driver', id); } catch (e) {}
       render();
     });
     input.focus();
@@ -1162,9 +1162,10 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       if (form) form.dispatchEvent(new Event('submit', { cancelable: true }));
     }
   });
-  var stored = null;
-  try { stored = localStorage.getItem('nemow-driver'); } catch (e) {}
-  if (stored && D.riders[stored]) { ME = D.riders[stored]; render(); } else { showGate(''); }
+  // Always start at the ID prompt: a shared link or a shared phone must never
+  // open another driver's numbers.
+  try { localStorage.removeItem('nemow-driver'); } catch (e) {}
+  showGate('');
 })();
 </script>
 </body></html>
