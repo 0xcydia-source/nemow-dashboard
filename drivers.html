@@ -302,9 +302,9 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       eLate: 'Drivers whose shift starts at 14:00 or later average <b>{a}</b> per hour. Those starting before 12:00 average <b>{b}</b>. <b>{c}</b> of the four strongest drivers also start at 14:00 or later.',
       eLateMine: 'Your planned start is {mine}.',
       eHours: 'Drivers working <b>fewer</b> hours than the fleet median do <b>{a}</b> per hour. Drivers working <b>more</b> hours do <b>{b}</b>. Extra hours add very little on their own.',
-      eHoursMine: 'You work {mine} h a day. Even at their hours ({top} h), your current pace gives you {x} deliveries a day — still below 15.',
-      eDist: 'You drive <b>{mine} km</b> per delivery. The four strongest drive <b>{top} km</b>; the fleet median is <b>{med} km</b>. One extra km costs about <b>{slope}</b> minutes per delivery.',
-      eDistBig: 'Your km per delivery is above theirs, which costs you about <b>{cost}</b> minutes per delivery. This is real — but <b>{pace}</b> minutes of your gap is still pace.',
+      eHoursMine: 'You work {mine} h a day, they work {top} h a day. Even at their hours, your current pace gives you {x} deliveries a day — still below 15.',
+      eDist: 'You drive <b>{mine}</b> km per delivery. The four strongest drive <b>{top}</b> km; the fleet median is <b>{med}</b> km. One extra km costs about <b>{slope}</b> minutes per delivery.',
+      eDistBig: 'Your km per delivery is above theirs, which costs you about <b>{cost}</b> per delivery. This is real — but <b>{pace}</b> of your gap is still pace.',
       eDistSmall: 'Your km per delivery is at their level. Distance does not explain your gap.',
       eOffers: 'You were offered <b>{mine}</b> orders per recorded day; the four strongest were offered <b>{top}</b>. What you received, you accepted <b>{a}%</b> of; they accepted <b>{b}%</b>.',
       eOffersGood: 'Offer volume is close to theirs. A declined order also removes the next easy one that would come with it.',
@@ -353,6 +353,7 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       sign: 'Kamal — Operations Officer',
       month: 'November 2026',
       of2: 'of',
+      swipe: 'Swipe the chart sideways to see the rest',
     },
     bn: {
       dir: 'ltr',
@@ -491,6 +492,7 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       sign: 'কামাল — অপারেশন্স অফিসার',
       month: 'নভেম্বর ২০২৬',
       of2: 'মোট',
+      swipe: 'চার্টটি পাশে সরিয়ে বাকিটা দেখুন',
     },
     ur: {
       dir: 'rtl',
@@ -629,6 +631,7 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       sign: 'کمال — آپریشنز آفیسر',
       month: 'نومبر 2026',
       of2: 'کل',
+      swipe: 'چارٹ کو پہلو میں سرکائیں، باقی دیکھیں'
     }
   };
 
@@ -786,14 +789,14 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
     var tiles = [
       [t('kPerDay'), num(me.per_day, 2), t('of') + ' 15', 'a', '#b45309'],
       [t('kPerHour'), num(me.per_hour, 3), t('target') + ' ' + f(D.target.per_hour, 3), 'r', '#dc2626'],
-      [t('kMin'), num(me.minutes, 1) + ' min', t('target') + ' ' + f(D.target.minutes, 1), 'r', '#dc2626'],
-      [t('kHours'), num(me.hours_day, 2) + ' h', t('top') + ' ' + f(top.hours_day, 2) + ' h', 'b', '#1d4ed8'],
-      [t('kExec'), pct(me.exec_pct), t('of') + ' ' + f(me.planned, 0) + ' h', 'g', '#15803d'],
-      [t('kAccept'), pct(me.accept_pct), t('top') + ' ' + f(top.accept_pct, 1) + '%', me.accept_pct < 95 ? 'r' : 'g', me.accept_pct < 95 ? '#dc2626' : '#15803d'],
+      [t('kMin'), bdi(f(me.minutes, 1) + ' min'), t('target') + ' ' + bdi(f(D.target.minutes, 1) + ' min'), 'r', '#dc2626'],
+      [t('kHours'), bdi(f(me.hours_day, 2) + ' h'), t('top') + ' ' + bdi(f(top.hours_day, 2) + ' h'), 'b', '#1d4ed8'],
+      [t('kExec'), pct(me.exec_pct), t('of') + ' ' + bdi(f(me.planned, 0) + ' h'), 'g', '#15803d'],
+      [t('kAccept'), pct(me.accept_pct), t('top') + ' ' + bdi(f(top.accept_pct, 1) + '%'), me.accept_pct < 95 ? 'r' : 'g', me.accept_pct < 95 ? '#dc2626' : '#15803d'],
       [t('kStack'), num(me.stacked_day, 2), t('top') + ' ' + f(top.stacked_day, 2), me.stacked_day < top.stacked_day * 0.85 ? 'r' : 'g', me.stacked_day < top.stacked_day * 0.85 ? '#dc2626' : '#15803d'],
-      [t('kLost'), pct(me.lost_pct), num(me.lost, 1) + ' h', 's', '#475569'],
+      [t('kLost'), pct(me.lost_pct), bdi(f(me.lost, 1) + ' h'), 's', '#475569'],
       [t('kKm'), num(me.km_order, 2), t('top') + ' ' + f(top.km_order, 2), 's', '#475569'],
-      [t('kDays'), num(me.days, 0), t('pillDays', { d: '' }).trim(), 's', '#475569']
+      [t('kDays'), num(me.days, 0), esc(t('kDays')), 's', '#475569']
     ];
     return '<div class="tiles">' + tiles.map(function (k) {
       return '<div class="tile ' + k[3] + '"><span>' + esc(k[0]) + '</span>' +
@@ -804,30 +807,30 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
 
   function gapSection(me, top) {
     var H = me.hours_day;
-    var fromHours = Math.max(0, (top.hours_day - H) * top.per_hour);
-    var fromPace = Math.max(0, H * (top.per_hour - me.per_hour));
-    var scale = Math.max(me.per_day, fromHours, fromPace, 1);
-    function w(v) { return (v / scale * 100).toFixed(2); }
+    var hoursEffect = (top.hours_day - H) * top.per_hour;      // positive = they work more
+    var paceEffect = H * (top.per_hour - me.per_hour);         // positive = they are faster
+    var scale = Math.max(me.per_day, top.per_day, 1) * 1.02;
+    function w(v) { return (Math.max(0, v) / scale * 100).toFixed(2); }
     var rows = [
-      [t('gapYou'), me.per_day, '#0f3d5c'],
-      [t('gapHours'), fromHours, '#d97706'],
-      [t('gapPace'), fromPace, '#dc2626'],
-      [t('gapTotal'), top.per_day, '#16a34a']
+      [t('gapYou'), me.per_day, '#0f3d5c', true],
+      [t('gapHours'), hoursEffect, '#d97706', false],
+      [t('gapPace'), paceEffect, '#dc2626', false],
+      [t('gapTotal'), top.per_day, '#16a34a', true]
     ];
     var days = me.days || 1;
     return '<div class="chart"><div class="rows">' + rows.map(function (r) {
       return '<div class="row"><span class="l">' + esc(r[0]) + '</span>' +
         '<div class="track"><i style="width:' + w(r[1]) + '%;background:' + r[2] + '"></i></div>' +
-        '<span class="v">' + num(r[1], 2) + '</span></div>';
+        '<span class="v">' + (r[3] ? num(r[1], 2) : signed(r[1], 2)) + '</span></div>';
     }).join('') + '</div>' +
       '<p class="cap">' + esc(t('gapSum')) + '</p></div>' +
-      '<div class="note ok"><b>' + t('hoursMore', { mine: f(me.hours_day, 2), top: f(top.hours_day, 2) }) + '</b></div>' +
+      '<div class="note ok"><b>' + t('hoursMore', { mine: bdi(f(me.hours_day, 2)), top: bdi(f(top.hours_day, 2)) }) + '</b></div>' +
       '<div class="note">' + t('paceOnly', {
-        g: f(top.per_day - me.per_day, 1),
-        p: f(fromPace, 1),
-        h: f(fromHours, 1),
+        g: bdi(f(top.per_day - me.per_day, 1)),
+        p: bdi(f(paceEffect, 1)),
+        h: bdi(f(Math.max(0, hoursEffect), 1)),
         q: ''
-      }).replace(/<b>/g, '<b>').replace(/ &nbsp;/g, ' ') + '</div>';
+      }) + '</div>';
   }
 
   function claims(me, top, fl) {
@@ -836,50 +839,53 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
     var worse = wo.per_hour !== null && no.per_hour !== null && wo.per_hour < no.per_hour;
 
     out.push({ q: 'qCar', v: worse ? 'part' : 'no', e: t('eCar', {
-      a: wo.days, b: f(wo.per_hour, 3), c: no.days, d: f(no.per_hour, 3),
-      e: fl.shared_car.riders, f: f(fl.shared_car.per_hour, 3)
+      a: bdi(wo.days), b: bdi(f(wo.per_hour, 3)), c: bdi(no.days), d: bdi(f(no.per_hour, 3)),
+      e: bdi(fl.shared_car.riders), f: bdi(f(fl.shared_car.per_hour, 3))
     }) + ' ' + (worse ? t('eCarLess', {
-      g: f(Math.abs(no.per_hour - wo.per_hour), 3),
-      h: f(Math.abs(no.per_hour - wo.per_hour) * me.hours_day, 1)
+      g: bdi(f(Math.abs(no.per_hour - wo.per_hour), 3)),
+      h: bdi(f(Math.abs(no.per_hour - wo.per_hour) * me.hours_day, 1))
     }) : t('eCarMore')),
-      n: [[t('youA'), f(wo.per_hour, 3)], [t('topA'), f(top.shared_car_per_hour, 3)]] });
+      n: [[t('youA'), bdi(f(wo.per_hour, 3))], [t('topA'), bdi(f(top.shared_car_per_hour, 3))]] });
 
     var lateTop = TOP_IDS.filter(function (id) { return D.riders[id] && D.riders[id].start >= 14; }).length;
     var lateBetter = fl.late.per_hour > fl.early.per_hour;
     out.push({ q: 'qLate', v: lateBetter ? 'no' : 'part', e: t('eLate', {
-      a: f(fl.late.per_hour, 3), b: f(fl.early.per_hour, 3), c: lateTop
+      a: bdi(f(fl.late.per_hour, 3)), b: bdi(f(fl.early.per_hour, 3)), c: bdi(lateTop)
     }) + ' ' + t('eLateMine', { mine: hhmm(me.start) }),
-      n: [[t('youA'), hhmm(me.start)], [t('fa'), f(fl.late.per_day, 1) + ' / ' + f(fl.early.per_day, 1)]] });
+      n: [[t('youA'), hhmm(me.start)], [t('fa'), bdi(f(fl.late.per_day, 1) + ' / ' + f(fl.early.per_day, 1))]] });
 
     out.push({ q: 'qHours', v: fl.fewer_hours.per_hour < fl.many_hours.per_hour * 0.94 ? 'part' : 'no',
-      e: t('eHours', { a: f(fl.fewer_hours.per_hour, 3), b: f(fl.many_hours.per_hour, 3) }) + ' ' +
-        t('eHoursMine', { mine: f(me.hours_day, 2), top: f(top.hours_day, 2), x: f(top.hours_day * me.per_hour, 1) }),
-      n: [[t('youA'), f(me.hours_day, 2) + ' h'], [t('topA'), f(top.hours_day, 2) + ' h']] });
+      e: t('eHours', { a: bdi(f(fl.fewer_hours.per_hour, 3)), b: bdi(f(fl.many_hours.per_hour, 3)) }) + ' ' +
+        t('eHoursMine', { mine: bdi(f(me.hours_day, 2) + ' h'), top: bdi(f(top.hours_day, 2) + ' h'),
+                          x: bdi(f(top.hours_day * me.per_hour, 1)) }),
+      n: [[t('youA'), bdi(f(me.hours_day, 2) + ' h')], [t('topA'), bdi(f(top.hours_day, 2) + ' h')]] });
 
     var slope = fl.km_minutes_slope || 3.9;
     var kmGap = (me.km_order || 0) - (top.km_order || 0);
     var kmCost = Math.max(0, kmGap * slope);
     var paceGapMin = me.hours_day * (top.per_hour - me.per_hour) * 60 / Math.max(1, me.per_day);
     out.push({ q: 'qDist', v: kmCost > 2.5 ? 'part' : 'no',
-      e: t('eDist', { mine: f(me.km_order, 2), top: f(top.km_order, 2), med: f(fl.med_km_order, 2), slope: f(slope, 1) }) +
-        ' ' + (kmCost > 2.5 ? t('eDistBig', { cost: f(kmCost, 1), pace: f(Math.max(0, me.minutes - top.minutes - kmCost), 1) })
+      e: t('eDist', { mine: bdi(f(me.km_order, 2)), top: bdi(f(top.km_order, 2)),
+                      med: bdi(f(fl.med_km_order, 2)), slope: bdi(f(slope, 1)) }) +
+        ' ' + (kmCost > 2.5 ? t('eDistBig', { cost: bdi(f(kmCost, 1) + ' min'),
+                                             pace: bdi(f(Math.max(0, me.minutes - top.minutes - kmCost), 1) + ' min') })
                             : t('eDistSmall')),
-      n: [[t('youA'), f(me.km_order, 2) + ' km'], [t('topA'), f(top.km_order, 2) + ' km']] });
+      n: [[t('youA'), bdi(f(me.km_order, 2) + ' km')], [t('topA'), bdi(f(top.km_order, 2) + ' km')]] });
 
     var offerDay = me.notified / (me.days || 1);
     var offerGap = top.offers_day - offerDay;
     out.push({ q: 'qOffers', v: offerGap > 2 ? 'yes' : 'no',
       e: (offerGap > 2 ? t('eOffersBad') : t('eOffersGood')) + ' ' + t('eOffers', {
-        mine: f(offerDay, 2), top: f(top.offers_day, 2),
-        a: f(me.accept_pct, 1), b: f(top.accept_pct, 1)
+        mine: bdi(f(offerDay, 2)), top: bdi(f(top.offers_day, 2)),
+        a: bdi(f(me.accept_pct, 1)), b: bdi(f(top.accept_pct, 1))
       }),
-      n: [[t('youA'), f(offerDay, 2) + ' /day'], [t('topA'), f(top.offers_day, 2) + ' /day']] });
+      n: [[t('youA'), bdi(f(offerDay, 2) + ' /day')], [t('topA'), bdi(f(top.offers_day, 2) + ' /day')]] });
 
     var readyVerdict = me.exec_pct >= 93 ? 'no' : 'part';
     out.push({ q: 'qReady', v: readyVerdict,
-      e: (me.exec_pct >= 93 ? t('eReadyGood', { exec: f(me.exec_pct, 1), lost: f(me.lost_pct, 2) })
-                            : t('eReady', { exec: f(me.exec_pct, 1), lost: f(me.lost_pct, 2) })),
-      n: [[t('kExec'), f(me.exec_pct, 1) + '%'], [t('kLost'), f(me.lost_pct, 2) + '%']] });
+      e: (me.exec_pct >= 93 ? t('eReadyGood', { exec: bdi(f(me.exec_pct, 1)), lost: bdi(f(me.lost_pct, 2)) })
+                            : t('eReady', { exec: bdi(f(me.exec_pct, 1)), lost: bdi(f(me.lost_pct, 2)) })),
+      n: [[t('kExec'), bdi(f(me.exec_pct, 1) + '%')], [t('kLost'), bdi(f(me.lost_pct, 2) + '%')]] });
     return out;
   }
 
@@ -889,7 +895,7 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       '<span class="v">' + esc(pill) + '</span>' +
       '<div class="e">' + c.e + '</div>' +
       '<div class="nums">' + c.n.map(function (x) {
-        return '<div><span>' + esc(x[0]) + '</span><strong>' + bdi(x[1]) + '</strong></div>';
+        return '<div><span>' + esc(x[0]) + '</span><strong>' + x[1] + '</strong></div>';
       }).join('') + '</div></div>';
   }
 
@@ -897,28 +903,30 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
     var needMin = D.target.minutes;
     var list = [];
     list.push({ t: t('a1t', { m: f(Math.max(0, me.minutes - needMin), 1) }),
-      b: t('a1b', { mine: f(me.minutes, 1), target: f(needMin, 1), gap: f(Math.max(0, me.minutes - needMin), 1) }) });
+      b: t('a1b', { mine: bdi(f(me.minutes, 1)), target: bdi(f(needMin, 1)),
+                    gap: bdi(f(Math.max(0, me.minutes - needMin), 1)) }) });
     if (me.accept_pct < (top.accept_pct - 0.6)) {
       var gain = (me.notified / me.days) * ((top.accept_pct - me.accept_pct) / 100);
       list.push({ t: t('a2t'), b: t('a2b', {
-        a: f(me.accept_pct, 1), b: f(top.accept_pct, 1), n: f(me.declined, 0), x: f(gain, 2) }) });
+        a: bdi(f(me.accept_pct, 1) + '%'), b: bdi(f(top.accept_pct, 1) + '%'),
+        n: bdi(f(me.declined, 0)), x: bdi(f(gain, 2)) }) });
     } else {
       list.push({ t: t('a2t'), b: t('a2good', { a: f(me.accept_pct, 1) }) });
     }
     if (me.stacked_day < top.stacked_day * 0.85) {
-      list.push({ t: t('a3t'), b: t('a3b', { top: f(top.stacked_day, 2), mine: f(me.stacked_day, 2) }) });
+      list.push({ t: t('a3t'), b: t('a3b', { top: bdi(f(top.stacked_day, 2)), mine: bdi(f(me.stacked_day, 2)) }) });
     } else {
       list.push({ t: t('a3t'), b: t('a3good', { mine: f(me.stacked_day, 2) }) });
     }
     if (me.mate) {
       list.push({ t: t('a4t'), b: t('a4b', {
         car: me.car, mate: me.mate,
-        a: f(me.with_overlap.per_hour, 3), b: f(me.without_overlap.per_hour, 3) }) });
+        a: bdi(f(me.with_overlap.per_hour, 3)), b: bdi(f(me.without_overlap.per_hour, 3)) }) });
     }
     if (me.km_order > top.km_order * 1.08) {
-      list.push({ t: t('a5t'), b: t('a5b', { mine: f(me.km_order, 2), top: f(top.km_order, 2) }) });
+      list.push({ t: t('a5t'), b: t('a5b', { mine: bdi(f(me.km_order, 2)), top: bdi(f(top.km_order, 2)) }) });
     } else {
-      list.push({ t: t('a5t'), b: t('a5good', { mine: f(me.km_order, 2) }) });
+      list.push({ t: t('a5t'), b: t('a5good', { mine: bdi(f(me.km_order, 2)) }) });
     }
     return '<div class="steps">' + list.map(function (s, i) {
       return '<div class="step"><div class="n">' + (i + 1) + '</div><div class="t">' +
@@ -1006,7 +1014,7 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       '<header class="hero">' +
       '<div class="kicker">NEMOW · ' + esc(t('title')) + '</div>' +
       '<div class="top"><h1>' + esc(t('hello')) + '</h1><span class="id">' + bdi(me.id) + '</span></div>' +
-      '<p class="lede">' + t('lede', { n: f(me.completed, 0), d: me.days }) + '</p>' +
+      '<p class="lede">' + t('lede', { n: bdi(f(me.completed, 0)), d: bdi(me.days) }) + '</p>' +
       '<div class="meta"><span>' + esc(t('pillPeriod')) + '</span><span>' + esc(t('pillTarget')) + '</span>' +
       '<span>' + esc(t('pillDays', { d: me.days })) + '</span><span>' + esc(t('pillFleet', { n: fl.riders })) + '</span></div>' +
       '<div class="langs">' + langButtons + '<button type="button" id="switch" class="switch">' + esc(t('change')) + '</button></div>' +
@@ -1033,7 +1041,7 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       gapSection(me, top) +
 
       '<h2><span class="n">04</span>' + esc(t('s4')) + '</h2>' +
-      '<div class="chart"><span class="swipe">↔</span>' + dailyChart(me.daily) + '</div>' +
+      '<div class="chart"><span class="swipe">' + esc(t('swipe')) + '</span>' + dailyChart(me.daily) + '</div>' +
       '<div class="panel" style="margin-top:10px"><p><b>' + esc(t('bandTitle', { n: me.days })) + '</b></p>' + bands +
       '<div class="facts">' +
       '<div><span>' + esc(t('fUnder')) + '</span><strong>' + bdi(me.days_under_10) + '</strong></div>' +
@@ -1042,8 +1050,8 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       '<div><span>' + esc(t('fHit')) + '</span><strong>' + bdi(me.days_at_target) + '</strong></div>' +
       '</div></div>' +
       '<div class="note bad"><b>' + t('bestWorst', {
-        bc: f(bD.comp, 0), bh: f(bD.act, 1), bm: f(bMin, 1),
-        wc: f(wD.comp, 0), wh: f(wD.act, 1), wm: f(wMin, 1)
+        bc: bdi(f(bD.comp, 0)), bh: bdi(f(bD.act, 1)), bm: bdi(f(bMin, 1)),
+        wc: bdi(f(wD.comp, 0)), wh: bdi(f(wD.act, 1)), wm: bdi(f(wMin, 1))
       }) + '</b></div>' +
       dayTable(me, best, worst) +
 
@@ -1053,21 +1061,21 @@ summary{cursor:pointer;font-weight:700;color:#0e7490}
       '<h2><span class="n">06</span>' + esc(t('s6')) + '</h2>' +
       actions(me, top) +
       '<div class="note ok"><b>' + esc(t('wTitle')) + '</b><br>' + t('wBody', {
-        n: f(me.hours_day * top.per_hour, 0), h: f(me.hours_day, 1),
-        r: f(top.per_hour, 3), m: f(60 / top.per_hour, 1)
+        n: bdi(f(me.hours_day * top.per_hour, 0)), h: bdi(f(me.hours_day, 1) + ' h'),
+        r: bdi(f(top.per_hour, 3)), m: bdi(f(60 / top.per_hour, 1) + ' min')
       }) + '<br><small>' + esc(t('wCheck')) + '</small></div>' +
 
       '<h2><span class="n">07</span>' + esc(t('s7')) + '</h2>' +
       peerTable(me) + '<p class="cap">' + esc(t('peersNote')) + '</p>' +
 
       '<h2><span class="n">08</span>' + esc(t('s8')) + '</h2>' +
-      '<div class="chart"><span class="swipe">↔</span>' + scatter(fl.points, me.id, TOP_IDS) +
+      '<div class="chart"><span class="swipe">' + esc(t('swipe')) + '</span>' + scatter(fl.points, me.id, TOP_IDS) +
       '<p class="cap">' + esc(t('scTitle')) + '</p></div>' +
       '<div class="note info">' + t('scNote') + '</div>' +
-      '<div class="chart"><span class="swipe">↔</span>' + histMinutes(fl.minutes_all, me.minutes) +
+      '<div class="chart"><span class="swipe">' + esc(t('swipe')) + '</span>' + histMinutes(fl.minutes_all, me.minutes) +
       '<p class="cap">' + esc(t('histTitle')) + ' — ' + esc(t('histNote')) + '</p></div>' +
       '<div class="panel" style="margin-top:10px"><p>' + t(hrRank >= fl.riders / 2 ? 'rkBody' : 'rkBodyLow', {
-        below: f(hrRank, 0), total: f(fl.riders - 1, 0)
+        below: bdi(f(hrRank, 0)), total: bdi(f(fl.riders - 1, 0))
       }) + '</p></div>' +
 
       '<h2><span class="n">09</span>' + esc(t('s10')) + '</h2>' +
