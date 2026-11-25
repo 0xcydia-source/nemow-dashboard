@@ -2087,6 +2087,87 @@ main>header p.subtitle.source-dates{grid-column:1/-1;grid-row:4;font-size:8.5px!
 @media(max-width:760px){
 .decision-grid .rp-tiles{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 }
+
+/* --------------------------------------------------------------- desktop density
+   At 1440px the trend card was 620px wide on a 1,394px canvas, so half of each
+   row stayed empty while Home ran to five screens. From 1000px up the command
+   centre packs into three columns: the trend takes the full width, and the
+   follow-up list sits beside the five source charts in a 2-up grid inside the
+   support panel. Every node, value and source line is unchanged. */
+@media(min-width:1000px){
+#owner-command-center>.occ-focus{max-width:none!important;margin:0!important;padding:6px 10px!important}
+#owner-command-center>.occ-focus svg{width:100%;height:auto;max-width:820px;margin-inline:auto;display:block}
+#owner-command-center .occ-more>h3{margin:6px 0 2px}
+#owner-command-center .occ-more>.occ-sub,#owner-command-center .occ-more>.occ-note{margin:0 0 4px}
+#owner-command-center .occ-more>.occ-exceptions{margin:0 0 8px;padding:7px 10px;border:1px solid #dce6ec;border-radius:10px;background:#fff}
+#owner-command-center .occ-more>.occ-exceptions li{font-size:11.5px;line-height:1.45;margin:0 0 1px}
+#owner-command-center .occ-more>.occ-exceptions p{font-size:10.5px;margin:2px 0 0}
+#owner-command-center .occ-support>.occ-chart-card{padding:7px 9px!important}
+#owner-command-center .occ-support>.occ-chart-card h3{font-size:10.5px!important;margin:0 0 3px!important}
+#owner-command-center .occ-support svg{max-height:165px}
+}
+@media(min-width:1000px) and (max-width:1180px){
+#owner-command-center .occ-support{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+
+/* Desktop chrome: the header, the connected-screen strip and the period panel
+   were each a full-width band with nothing else in them. Keep them, but on one
+   compact line layout so the first desktop screen is data, not scaffolding. */
+@media(min-width:1000px){
+main>header{padding:9px 14px!important;margin-bottom:8px!important;border-radius:0 0 14px 14px!important}
+main>header:before{font-size:9.5px!important;margin:0 0 1px!important;line-height:1.2!important}
+main>header h1{font-size:19px!important;margin:0!important;line-height:1.25!important}
+main>header p{margin:0!important;font-size:10.5px!important;line-height:1.35!important}
+main>header>div{font-size:10.5px!important;line-height:1.3!important}
+main>header button{min-height:30px!important;font-size:11px!important;padding:2px 10px!important}
+#globalPeriodPanel{padding:6px 12px!important;margin:0 0 6px!important;border-radius:10px!important}
+.panel.contextual-links{padding:4px 10px!important;margin:0 0 6px!important;box-shadow:none!important;display:flex!important;align-items:center;gap:8px;flex-wrap:wrap}
+.panel.contextual-links .caption{margin:0!important;font-size:10.5px!important}
+.panel.contextual-links .context-link{min-height:28px!important;padding:2px 9px!important;font-size:11px!important}
+#owner-command-center{padding:8px 12px!important;margin-bottom:8px!important}
+#owner-command-center .occ-meta{margin:0 0 4px!important}
+#owner-command-center .occ-tiles{margin-bottom:6px!important}
+}
+
+/* Desktop detail blocks were padded like phone cards, so each cost several
+   hundred pixels of scroll for a few numbers. Tighten rows, keep the values. */
+@media(min-width:1000px){
+.decision-grid{gap:10px!important;margin:8px 0!important}
+.decision-grid .ops-table td,.decision-grid .ops-table th{padding:3px 7px!important;line-height:1.35!important}
+.decision-grid .ops-table strong{font-size:14px!important}
+.decision-grid .ops-table small{font-size:9.5px!important;display:inline!important;margin-inline-start:4px}
+.decision-grid .ops-table .ops-date{display:inline!important;font-size:9px!important;margin-inline-start:3px}
+.decision-grid .home-ops{padding:8px 10px!important}
+.decision-grid h2{font-size:14px!important;margin:0 0 2px!important}
+.decision-grid .caption,.decision-grid .rp-sub{font-size:10.5px!important;line-height:1.4!important;margin:0 0 4px!important}
+.ops-note{font-size:10px!important;line-height:1.4!important;margin:4px 0!important}
+#risk-panel{padding:8px 10px!important}
+#risk-panel h2{font-size:14px!important}
+#risk-panel .rp-wrap{max-height:340px!important}
+.hq-panel{padding:8px 12px!important;margin:8px 0!important}
+.hq-head h2{font-size:14px!important;margin:0!important}
+.hq-head .caption{font-size:10.5px!important;line-height:1.4!important;margin:0 0 4px!important}
+.hq-lists{gap:10px!important}
+.hq-row{padding:3px 0!important}
+.hq-row .hq-value strong{font-size:14px!important}
+.hq-foot{font-size:9.5px!important;margin:3px 0 0!important}
+#overview>.note{padding:6px 10px!important;margin:6px 0!important;font-size:10.5px!important;line-height:1.45!important}
+#overview>.home-legacy-metrics,#overview>.home-legacy-highlights,#overview>.home-detail-sections,#overview>.decision-secondary{margin:4px 0!important}
+#overview>details>summary{padding:7px 10px!important;font-size:12px!important}
+}
+
+/* Desktop: the follow-up list sat above the charts as its own full-width band,
+   leaving the charts to start a whole scroll later. Put it in the left column
+   beside the chart grid; every node and value stays where it is in the DOM. */
+@media(min-width:1000px){
+#owner-command-center .occ-more{display:grid!important;grid-template-columns:minmax(0,0.92fr) minmax(0,3fr);gap:8px 10px;align-items:start}
+#owner-command-center .occ-more>h3,#owner-command-center .occ-more>.occ-sub,#owner-command-center .occ-more>.occ-note,
+#owner-command-center .occ-more>.occ-support-hint,#owner-command-center .occ-more>.occ-expiry,#owner-command-center .occ-more>.occ-ref{grid-column:1/-1}
+#owner-command-center .occ-more>.occ-exceptions{grid-column:1;margin:0!important}
+#owner-command-center .occ-more>.occ-support{grid-column:2;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+#owner-command-center .occ-support>.occ-chart-card h3{font-size:10.5px!important}
+#owner-command-center .occ-support svg{max-height:150px}
+}
 </style><style id="performanceTargetsStyle">.pt-panel{background:#fff;border:1px solid #d8e3ea;border-radius:12px;padding:16px;max-width:100%;min-width:0}.pt-head h3{margin:0;font-size:18px}.pt-basis{font-size:12px;line-height:1.7;color:#536d7e;margin:6px 0 12px}.pt-windows{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.pt-windows span{font-size:12px;background:#eef4f7;border-radius:7px;padding:5px 9px}.pt-windows b{direction:ltr;font-weight:600}.pt-table-wrap{overflow:auto;max-width:100%}.pt-table{width:100%;border-collapse:collapse;font-size:12px}.pt-table th,.pt-table td{padding:8px 9px;border-bottom:1px solid #edf1f5;text-align:right}.pt-table thead th{background:#173e54;color:#fff;font-size:11.5px;white-space:nowrap;position:sticky;top:0}.pt-table td{font-variant-numeric:tabular-nums}.pt-table small{display:block;color:#647d8d;font-size:10.5px}.pt-table td.pt-bad{color:#b3261e;font-weight:600}.pt-table td.pt-warn{color:#a16207;font-weight:600}.pt-table td.pt-ok{color:#166534;font-weight:600}.pt-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}.pt-card{background:#f8fbfc;border:1px solid #dae5ec;border-radius:10px;padding:11px;min-width:0}.pt-card header{display:flex;justify-content:space-between;align-items:baseline;gap:6px}.pt-card header span{font-size:14px;font-weight:700}.pt-card header small{font-size:10px;color:#61798a;direction:ltr}.pt-card-main{display:flex;align-items:baseline;gap:6px;margin:7px 0 9px}.pt-card-main strong{font-size:27px;line-height:1.1;direction:ltr;text-align:right;font-variant-numeric:tabular-nums}.pt-card-main span{font-size:11px;color:#5b7385}.pt-card dl{margin:0}.pt-card dl div{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-top:1px dashed #e2eaf0;font-size:11.5px}.pt-card dt{color:#58707f}.pt-card dd{margin:0;font-weight:600;direction:ltr;font-variant-numeric:tabular-nums}.pt-card dd.pt-miss{color:#b3261e}.pt-card dd.pt-hit{color:#166534}.pt-gap{margin:7px 0 0;font-size:10.5px;line-height:1.6;color:#5f7686}.pt-riders{margin-top:10px;border:1px solid #e0e9ee;border-radius:9px;padding:10px}.pt-riders summary,.pt-table-details summary{cursor:pointer;font-weight:600;font-size:13px;padding:4px 0}.pt-riders dl,.pt-riders .pt-table-wrap{margin-top:6px}@media(max-width:760px){.pt-panel{padding:11px}.pt-cards{grid-template-columns:minmax(0,1fr);gap:7px}.pt-card-main strong{font-size:24px}.pt-card-main{margin:5px 0 6px}.pt-card dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px}.pt-card dl div{padding:3px 0}.pt-card{padding:10px}.pt-gap{margin-top:5px}.pt-windows span{font-size:11px;padding:4px 7px}.pt-head h3{font-size:17px}.pt-basis{font-size:11.5px;line-height:1.6;margin:5px 0 8px}.pt-table{font-size:11.5px}.pt-table th,.pt-table td{padding:7px}.pt-table-wrap{overflow-x:auto}}
 </style><style id="orResearchStyle">
 #operations-research{padding:0}
