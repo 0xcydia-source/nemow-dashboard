@@ -16734,24 +16734,28 @@ window.NemowTrendPatterns = (() => {
 </script>
 
 <script id="compactNavigation">
-/* Four-tab compact shell — one primary tablist, one local subtab row, one leaf.
+/* Compact shell — one primary tablist, one subtab row per tab, one open leaf.
  *
- * Contract with the page (docs/DASHBOARD_FOUR_TAB_SPEC_2026-11-26.md §1, narrow
- * shell slice):
- *   * Four top-level tabs; each tab owns at most four subtabs.
+ * Contract with the page (owner correction 27 November 2026, superseding the
+ * four-tab limit of docs/DASHBOARD_FOUR_TAB_SPEC_2026-11-26.md §1):
+ *   * Seven top-level tabs; each tab owns its subtabs. Every distinct live screen
+ *     has a normal visible destination — there is no hidden catch-all list.
+ *   * Each subtab opens its own element. A distinct screen is never mapped onto
+ *     another screen's content; the only alias is the page router's own
+ *     superseded route (`planning` → `shiftwork`). An external destination (the
+ *     driver portal page) stays a real link with its own address.
  *   * Exactly one leaf is shown at a time: of `section.view` elements and
  *     `.cn-view` readings, exactly one carries the router's `.active` class.
  *   * The existing router stays the single source of truth. Tab/subtab buttons do
- *     not open anything themselves: they "ask" the router by dispatching the same
- *     `click` on a hidden legacy `[data-tab]` trigger, and one document-level
+ *     not open anything themselves: they ask the router by dispatching the same
+ *     `click` on the page's own `[data-tab]` trigger, and one document-level
  *     listener (installed in the capture phase, before the router's own bubble
- *     listener) turns that legacy route into the leaf route and passes the event
- *     to the router. Hash, `popstate`, cross-links and period swaps therefore go
+ *     listener) turns that route into the leaf route and passes the event to the
+ *     router. Hash, `popstate`, cross-links and period swaps therefore all go
  *     through the untouched router.
- *   * A moved part is not a merge. Views the shell owns (the compact production
- *     table from `src/compact_production.js`, and the shell "readings" view) are
- *     labelled as such; a legacy surface that still exists keeps its own entry in
- *     the "شاشات قديمة" list instead of being presented as consolidated.
+ *   * Views the shell owns (the compact production table from
+ *     `src/compact_production.js`) are labelled as such and are the only entries
+ *     beside a page-native screen.
  */
 (function (global) {
   'use strict';
@@ -16765,59 +16769,109 @@ window.NemowTrendPatterns = (() => {
   const SINCE = typeof performance !== 'undefined' && performance.now ? performance.now() : 0;
 
   // ---- tree ---------------------------------------------------------------
-  // RTL order: the first tab is the rightmost. `default` is its first subtab.
+  // RTL order: the first tab is the rightmost. Seven tabs, at most four subtabs each;
+  // on a phone the tabs wrap into two rows of four and the subtabs into a 2x2 grid,
+  // with every label shown in full (see STYLE).
+  //
+  // A tab with no subtabs shows the row of the tab it belongs to (the fuel ledger is
+  // one page, but it lives in «اليوم» where the ledger is generated).
+  // Each subtab names the page route it opens (`routes[0]`, the element id for every
+  // page-native screen) and optionally the element that route actually opens
+  // (`opens`). A subtab is never shown while another screen is open, and no two
+  // subtabs open the same element.
   const TABS = [
-    // A one-item subtab row would be navigation without a choice: the tab is the page.
-    { id: 'today', label: 'اليوم', hint: 'الصورة العامة ومركز القيادة', page: 'overview', subtabs: [] },
-    { id: 'performance', label: 'الأداء', hint: 'الإنتاج، الوقت، الاتجاهات، الجودة', subtabs: [
-      { id: 'production', label: 'الإنتاج', routes: ['production'] },
-      { id: 'time', label: 'الوقت', routes: ['time'] },
-      { id: 'trends', label: 'الإتجاهات', routes: ['trends'] },
-      { id: 'quality', label: 'الجودة', routes: ['quality'] }
+    { id: 'home', label: 'اليوم', hint: 'الصورة العامة، الإنتاج، إنجاز الفترة، الوقود', subtabs: [
+      { id: 'overview', label: 'الصورة العامة', title: 'ملخص مؤشرات الفترة', routes: ['overview'] },
+      { id: 'delivery', label: 'الإنتاج', title: 'من ينجز أكثر؟', routes: ['delivery'] },
+      // The period total (daily-performance months): it had no visible destination.
+      { id: 'months', label: 'إنجاز الفترة', title: 'إنجاز الفترة', routes: ['months'] },
+      // One page of its own (opened through the shell's own leaf below), listed here so
+      // «اليوم» keeps one row with all four of its destinations.
+      { id: 'fuel', label: 'الوقود', title: 'محطة الوقود الجديدة — دفتر التعبئة', routes: ['fuel-ledger'], leaf: true }
     ] },
-    { id: 'operations', label: 'التشغيل', hint: 'الورديات والسيارات، التقرير اليومي، الفوترة والمحافظ، المصادر', subtabs: [
-      { id: 'shifts', label: 'الورديات والسيارات', routes: ['shiftwork'] },
-      { id: 'daily-report', label: 'التقرير اليومي', routes: ['daily-reports'] },
-      { id: 'billing', label: 'الفوترة والمحافظ', routes: ['billing'] },
-      { id: 'sources', label: 'المصادر', routes: ['upload-sources'] }
+    { id: 'quality', label: 'الجودة', title: 'الجودة', hint: 'الجودة، الإتجاهات، مقارنة الشهور، الإنتاج', subtabs: [
+      { id: 'quality', label: 'الجودة', title: 'الجودة والقبول لا يساويان الإنتاج', routes: ['quality'] },
+      { id: 'trends', label: 'الإتجاهات', title: 'تحسن أم تراجع؟', routes: ['trends'] },
+      { id: 'comparison', label: 'مقارنة الشهور', title: 'هل المقارنة عادلة؟', routes: ['comparison'] },
+      // The sortable one-table reading of the daily records (shell-owned view).
+      { id: 'production', label: 'جدول الإنتاج', title: 'الإنتاج — جدول واحد', routes: ['production'] }
     ] },
-    { id: 'drivers', label: 'المناديب', hint: 'الجدول، ملف المندوب، المتابعة، الرواتب', subtabs: [
-      { id: 'roster', label: 'الجدول', routes: ['drivers'] },
-      // The driver (file) subtab opens the page's own profile view; it is not a
-      // shell-invented screen, so nothing is copied and nothing is blank.
-      { id: 'profile', label: 'ملف المندوب', routes: ['driver-profile'], target: 'drivers' },
-      { id: 'followup', label: 'المتابعة', routes: ['decisions'] },
-      { id: 'payroll', label: 'الرواتب', routes: ['hr'] }
+    { id: 'operations', label: 'التشغيل', title: 'التشغيل', hint: 'الورديات والسيارات، التقرير اليومي، الفوترة، المصادر', subtabs: [
+      { id: 'shifts', label: 'الورديات والسيارات', title: 'الورديات والتخطيط', routes: ['shiftwork'] },
+      { id: 'daily-report', label: 'التقرير اليومي', title: 'التقارير اليومية', routes: ['daily-reports'] },
+      { id: 'billing', label: 'الفوترة والمحافظ', title: 'الفوترة والخصومات', routes: ['billing'] },
+      { id: 'sources', label: 'المصادر', title: 'المصادر', routes: ['upload-sources'] }
+    ] },
+    { id: 'research', label: 'بحوث العمليات', hint: 'اقتصاديات التشغيل من الفاتورة إلى الطلب', page: 'operations-research', subtabs: [] },
+    { id: 'drivers', label: 'المناديب', title: 'المناديب', hint: 'الجدول، المتابعة، مقارنة المؤشرات، التنبيهات', subtabs: [
+      // One screen, one subtab: the roster, the driver selector and the per-rider
+      // profile are all #drivers, so a second «ملف المندوب» entry would open the same
+      // screen twice. The page's own selector picks the rider.
+      { id: 'roster', label: 'الجدول', title: 'ملف واحد لكل مندوب', routes: ['drivers'] },
+      { id: 'followup', label: 'المتابعة', title: 'متابعة مقترحة وليست عقوبة', routes: ['decisions'] },
+      { id: 'kpi-compare', label: 'مقارنة المؤشرات', title: 'مقارنة مؤشرات المناديب', routes: ['kpi-compare'] },
+      { id: 'notifications', label: 'التنبيهات', title: 'التنبيهات', routes: ['notifications'] }
+    ] },
+    { id: 'people', label: 'التقييم والراتب', title: 'التقييم والرواتب', hint: 'التقييم، الجودة والمسافة، الوقت، الموارد البشرية', subtabs: [
+      { id: 'assessment', label: 'التقييم', title: 'سبب الحكم والخطوة التالية', routes: ['assessment'] },
+      { id: 'context', label: 'الجودة والمسافة', title: 'ما الذي قد يفسر الفرق؟', routes: ['context'] },
+      { id: 'time', label: 'الوقت', title: 'هل نعمل الوقت المخطط؟', routes: ['time'] },
+      { id: 'payroll', label: 'الموارد البشرية', title: 'الموارد البشرية', routes: ['hr'] }
+    ] },
+    { id: 'files', label: 'الملفات', title: 'الملفات والصفحات', hint: 'ملف الرواتب وصفحة المندوب', subtabs: [
+      { id: 'workbook', label: 'ملف الرواتب', title: 'ملف الرواتب', routes: ['workbook'] },
+      // A separate page, not a view of this page: the subtab keeps the page's own
+      // <a data-tab="driver-portal"> address and the router's own handler.
+      { id: 'portal', label: 'صفحة المندوب', title: 'أدائي مقابل أفضل 4', external: 'driver-portal' }
     ] }
   ];
+  // Destinations the page has no container of its own for. They are real top-level
+  // destinations (a tab of their own), never squeezed into another tab's row: a view
+  // without a place in a tab's row must still be one visible tap away.
+  const EXTRA_TABS = [
+    { id: 'fuel', group: 'home', label: 'الوقود', hint: 'محطة الوقود: دفتر التعبئة لكل مركبة — مصدره تصدير المحطة',
+      routes: ['fuel-ledger'], opens: 'fuel-ledger', element: '.fs-panel', title: 'محطة الوقود الجديدة — دفتر التعبئة' }
+  ];
   // Old route ids that keep resolving, exactly as the router already aliases them.
+  // Only a superseded duplicate may appear here; a live distinct screen never.
   const ALIASES = { planning: 'shiftwork' };
   // Shell-owned views. `routes[0]` is the id the router opens; the element is
   // created here if the page does not already carry it.
   const SHELL_VIEWS = {
-    // One table replacing the separate production rankings (#delivery) for the
-    // team view. #delivery itself stays live as a legacy screen: moving it would
-    // not be a merge, and hiding it would lose the current reading. The view id
-    // must be unique across the page, so it is not the route name.
-    production: { label: 'الإنتاج — جدول واحد', build: mountProduction },
-    // What the four-leaf tree does not show yet, in one short list.
-    'cn-readings': { label: 'قراءات الفترة', build: buildReadings }
+    // One table replacing the separate production rankings for the team view. The
+    // page's own #delivery screen keeps its own subtab: moving it would not be a
+    // merge, and hiding it would lose the reading the owner already uses.
+    production: { label: 'الإنتاج — جدول واحد', build: mountProduction }
   };
-  const MAX_SUBTABS = 4;
   let productionApi = null;
 
   // ---- helpers ------------------------------------------------------------
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const canon = route => ALIASES[route] || route;
+  // The element a subtab opens after the router has run: `opens` lets a subtab keep
+  // its own address (`#driver-profile`) while showing the page's own view.
+  const openOf = sub => sub.opens || (sub.routes && sub.routes[0]) || sub.id;
+  // The tab a whole-page tab belongs to for the row: its own group (`group`), else
+  // itself. This keeps the row on screen while the page shows a leaf of that group.
+  function leafHome(extra) {
+    const group = TABS.find(t => t.id === extra.group);
+    if (!group) return { id: extra.id, label: extra.label, hint: extra.hint, subtabs: [] };
+    return { id: group.id, label: group.label, hint: group.hint, subtabs: group.subtabs.concat([extra]) };
+  }
   function leafOf(route) {
     route = canon(route);
+    for (const extra of EXTRA_TABS) {
+      if (!(extra.routes || []).includes(route) && extra.page !== route) continue;
+      return { tab: leafHome(extra), sub: { id: extra.id, label: extra.label, routes: [route] }, route, page: true, extra: true };
+    }
     for (const tab of TABS) {
       if (tab.page === route) return { tab, sub: { id: tab.id, label: tab.label, routes: [tab.page] }, route, page: true };
       for (const sub of tab.subtabs) {
-        if (sub.routes.includes(route)) return { tab, sub, route };
-        // A subtab may name a route that opens a page-native view with another id
-        // (the driver file opens #drivers); the page's element is what is opened.
-        if (sub.target === route) return { tab, sub, route: sub.target };
+        if (sub.external && sub.external === route) return { tab, sub, route, external: true };
+        if (sub.external) continue;
+        if (sub.routes.includes(route)) return { tab, sub, route: openOf(sub) };
+        // `opens` lets a subtab keep its own address while showing another view.
+        if (sub.opens === route) return { tab, sub, route: sub.opens };
       }
     }
     return null;
@@ -16839,7 +16893,6 @@ window.NemowTrendPatterns = (() => {
   };
   const isLegacyView = el => isViewEl(el);
   const leaves = () => Array.from(doc.querySelectorAll('section.view, section.cn-view')).filter(isLegacyView);
-  const legacyViewRoutes = () => leaves().map(v => v.id).filter(id => !id || !leafOf(id));
   function viewTitle(id) {
     const view = doc.getElementById(id);
     if (!view || !isViewEl(view)) return id;
@@ -16848,24 +16901,30 @@ window.NemowTrendPatterns = (() => {
   }
 
   // ---- styles -------------------------------------------------------------
+  // No cell is ever clipped: every toolbar label wraps instead of being ellipsized,
+  // and the rows are grids that fit their container, so nothing scrolls sideways.
+  const ROW_COLUMNS = Math.max(...TABS.map(t => t.subtabs.length), 1);
   const STYLE = [
     '#compactNav{dir:rtl;margin:0 0 8px}',
-    // Exactly one leaf is rendered: an inactive view is never laid out.
-    '#compactNav .cn-tabs{display:flex;gap:2px;border-bottom:1px solid #cbdbe5}',
-    '#compactNav .cn-tab{flex:1 1 0;min-height:40px;padding:5px 8px;border:0;border-bottom:3px solid transparent;background:transparent;color:#173f59;font:inherit;font-size:15px;font-weight:600;cursor:pointer}',
+    // Tabs: one full-width row; on a phone the cells wrap into 4 + 3 (see media rules).
+    '#compactNav .cn-tabs{display:flex;gap:0;border-bottom:1px solid #cbdbe5;overflow:visible}',
+    '#compactNav .cn-tab{flex:1 1 0;min-width:0;min-height:44px;padding:6px 4px;border:0;border-bottom:3px solid transparent;background:transparent;color:#173f59;font:inherit;font-size:15px;font-weight:600;line-height:1.2;cursor:pointer;white-space:normal;overflow:visible;text-overflow:clip;text-align:center;overflow-wrap:anywhere;word-break:keep-all}',
     '#compactNav .cn-tab[aria-selected="true"]{color:#0d5763;border-bottom-color:#168c9b;background:#f2f9fb}',
     '#compactNav .cn-tab:hover{background:#eef5f8}',
-    '#compactNav .cn-subs{display:flex;gap:4px;overflow-x:auto;padding:2px 0 0;min-height:36px}',
-    '#compactNav .cn-sub{flex:0 0 auto;min-height:36px;padding:5px 10px;border:0;border-bottom:2px solid transparent;background:transparent;color:#526a7c;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}',
+    // Subtabs: a wrapped grid, never a horizontal scroller.
+    '#compactNav .cn-subs{overflow:visible;padding:2px 0 0;max-width:100%}',
+    '#compactNav .cn-sub-row{display:grid;grid-auto-flow:row;grid-template-columns:repeat(' + ROW_COLUMNS + ',minmax(0,1fr));width:100%}',
+    '#compactNav .cn-sub{min-width:0;min-height:44px;padding:5px 4px;border:0;border-bottom:2px solid transparent;background:transparent;color:#526a7c;font:inherit;font-size:13px;line-height:1.25;cursor:pointer;white-space:normal;overflow:visible;text-overflow:clip;text-align:center;overflow-wrap:anywhere;word-break:keep-all;display:flex;align-items:center;justify-content:center}',
     '#compactNav .cn-sub[aria-selected="true"]{color:#0d5763;border-bottom-color:#168c9b;font-weight:700}',
     '#compactNav .cn-sub:hover,#compactNav .cn-sub:focus-visible{background:#eef5f8;color:#173f59}',
-    // The disclosure sits AFTER the active leaf's content, never in the first screen.
-    '#compactNav .cn-legacy{margin:10px 0 4px;font-size:12px;color:#526a7c}',
-    '#compactNav .cn-legacy summary{cursor:pointer;min-height:32px;display:flex;align-items:center;gap:6px}',
-    '#compactNav .cn-legacy-list{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 2px}',
-    '#compactNav .cn-legacy button{min-height:32px;padding:4px 9px;border:1px dashed #cbdbe5;border-radius:8px;background:#fff;color:#173f59;font:inherit;font-size:12px;cursor:pointer}',
-    '#compactNav .cn-legacy button:hover{background:#eef5f8}',
-    '#compactNav .cn-legacy button[data-open="1"]{border-style:solid;border-color:#168c9b;background:#e6f2f6;font-weight:700}',
+    '#compactNav .cn-sub:focus-visible{outline:2px solid #168c9b;outline-offset:-2px}',
+    '#compactNav .cn-sub.is-hidden{display:none}',
+    // The fuel ledger, when it is in its own leaf: it keeps its own box exactly.
+    '#fuel-ledger .fs-panel{margin:0}',
+    '#fuelLedgerMount{display:block}',
+    '#compactNav .cn-external{margin:6px 0 0;font-size:12px}',
+    '#compactNav .cn-external a{display:inline-flex;align-items:center;min-height:34px;padding:4px 10px;border:1px solid #0f6d7a;border-radius:8px;background:#0f6d7a;color:#fff;font:inherit;font-weight:600;text-decoration:none}',
+    '#compactNav .cn-external a:focus-visible{outline:3px solid #168c9b;outline-offset:2px}',
     '#compactNav button:focus-visible,#compactNav summary:focus-visible{outline:3px solid #168c9b;outline-offset:2px}',
     // On a phone the toolbar is two lines: the search field and one period line. The
     // full sentences stay in the DOM; the period line is clamped with «…» and opens
@@ -16882,13 +16941,11 @@ window.NemowTrendPatterns = (() => {
     'body.compact-nav>main>nav,body.compact-nav #directTabs,body.compact-nav #navGroups,body.compact-nav #navigationToggle{display:none!important}',
     // The brand descriptor is one short line: no mid-word wrap in the narrow column,
     // and the whole sentence stays available as the tooltip.
-    'body.compact-nav .cn-legacy{max-width:100%}',
     'body.compact-nav #cnBrandLine{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}',
     'body.compact-nav #cnBrandLine>span{white-space:nowrap}',
     'body.compact-nav main>header[style*="cn-brand-printed"]::before{content:none!important;display:none!important}',
     // The page's "related screens" strip repeats what the subtab row already says; it
-    // is presentation only — no reading, number or link target is lost with it (every
-    // destination it listed has a subtab or the "legacy screens" list).
+    // is presentation only — every destination it listed is a tab or a subtab.
     'body.compact-nav .contextual-links{display:none!important}',
     // The compact header's layout (columns, readable source disclosure, brand mark) is
     // owned by src/design.css under the `body.compact-nav` scope. Only the page's own
@@ -16901,27 +16958,30 @@ window.NemowTrendPatterns = (() => {
     // A one-tap control, not a full panel: its label names the applied period.
     'body.compact-nav #globalPeriodPanel{padding:3px 8px!important;margin-bottom:4px!important}',
     'body.compact-nav #periodToggle{min-height:30px!important;padding:3px 10px!important;font-size:11.5px!important;line-height:1.25!important}',
-    '@media (max-width:760px){body.compact-nav #compactNav .cn-sub{min-height:28px!important;padding:2px 6px!important;font-size:11.5px!important;line-height:1.25!important}}',
     'section.view:not(.active),section.cn-view:not(.active){display:none!important}',
     // Nothing inside a leaf may push the page sideways: tables keep their own horizontal
     // scroll (see #compactProductionMount), grids and flex rows may shrink below content.
-    'body.compact-nav main{overflow-x:clip}',
+    // Not `clip`: on an RTL page a clipping scroll container also becomes the
+    // scroll container of the whole page, so a table's horizontal scroll moves the
+    // header and toolbar away instead of scrolling the table itself.
+    'body.compact-nav main{overflow-x:hidden}',
     'body.compact-nav .cn-view,body.compact-nav .cn-view *{max-width:100%}',
     'body.compact-nav .cn-view{overflow-wrap:anywhere}',
     'body.compact-nav #compactNav{min-width:0}',
     'body.compact-nav #compactNav .cn-tabs,body.compact-nav #compactNav .cn-subs{min-width:0}',
-    'body.compact-nav #compactNav .cn-tab,body.compact-nav #compactNav .cn-sub{padding-inline:6px!important}',
-    '@media (max-width:360px){body.compact-nav #compactNav .cn-tab{font-size:13px!important}body.compact-nav #compactNav .cn-sub{font-size:11px!important}}',
+    // No hidden horizontal scroll anywhere in the toolbar.
+    'body.compact-nav #compactNav .cn-subs,body.compact-nav #compactNav .cn-sub-row{overflow:visible}',
+    'body.compact-nav #compactNav .cn-tab,body.compact-nav #compactNav .cn-sub{overflow:visible;text-overflow:clip;white-space:normal}',
+    'body.compact-nav #compactNav .cn-tab{padding-inline:4px!important}',
+    // A phone tab bar is two rows of four (seven tabs read 4 + 3). The label wraps,
+    // full length, instead of shrinking under a 44 px touch floor.
+    '@media (max-width:480px){#compactNav .cn-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}#compactNav .cn-tab{font-size:13px!important;letter-spacing:0;padding:6px 2px!important;min-height:44px}}',
+    // Phone subtabs are a 2 x 2 wrapped grid: all four are on screen at once.
+    '@media (max-width:480px){#compactNav .cn-sub-row{grid-template-columns:repeat(2,minmax(0,1fr))}#compactNav .cn-sub{font-size:13px!important;min-height:44px;padding:6px 4px!important}}',
+    '@media (max-width:360px){#compactNav .cn-tab{font-size:12px!important}#compactNav .cn-sub{font-size:12px!important}#compactNav .cn-sub-row{grid-template-columns:repeat(2,minmax(0,1fr))}}',
     '.cn-view{display:block}',
     '.cn-view>h2{margin:0 0 8px;font-size:16px;color:#173f59}',
-    '.cn-note{margin:6px 0 0;font-size:12px;color:#526a7c;line-height:1.5}',
-    '.cn-readings{display:grid;gap:10px}',
-    '.cn-readings section{border:1px solid #dce6ed;border-radius:10px;padding:10px 12px;background:#fff}',
-    '.cn-readings h3{margin:0 0 6px;font-size:14px;color:#173f59}',
-    '.cn-readings ul{margin:0;padding-inline-start:18px;font-size:13px;line-height:1.6}',
-    '.cn-readings .cn-grain{color:#526a7c;font-size:12px}',
-    // 2x2 grid (spec: long subtab labels), each row half the height of a full tab.
-    '@media (max-width:480px){#compactNav .cn-subs{display:grid;grid-template-columns:1fr 1fr;overflow:visible;gap:0 2px;min-height:0}#compactNav .cn-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;font-size:11.5px;min-height:26px;padding:1px 6px}}'
+    '.cn-note{margin:6px 0 0;font-size:12px;color:#526a7c;line-height:1.5}'
   ];
   const style = doc.createElement('style');
   style.id = 'compactNavStyle';
@@ -16936,23 +16996,60 @@ window.NemowTrendPatterns = (() => {
   const tabList = doc.createElement('div');
   tabList.className = 'cn-tabs';
   tabList.setAttribute('role', 'tablist');
-  tabList.setAttribute('aria-label', 'الأقسام الأربعة');
+  tabList.setAttribute('aria-label', 'أقسام لوحة الأداء');
+  // The scrolling viewport for a wide subtab row; the grid inside it holds the cells.
   const subList = doc.createElement('div');
   subList.className = 'cn-subs';
-  subList.setAttribute('role', 'tablist');
-  subList.setAttribute('aria-label', 'صفحات القسم المختار');
-  const legacy = doc.createElement('details');
-  legacy.className = 'cn-legacy';
-  const legacySummary = doc.createElement('summary');
-  legacySummary.textContent = 'شاشات قديمة — لم تُدمج، وتبقى متاحة كما هي';
-  const legacyList = doc.createElement('div');
-  legacyList.className = 'cn-legacy-list';
-  legacy.append(legacySummary, legacyList);
-  legacy.hidden = true; // placed after the open leaf's content by placeLegacy()
-  root.append(tabList, subList);
+  const subRow = doc.createElement('div');
+  subRow.className = 'cn-sub-row';
+  subRow.setAttribute('role', 'tablist');
+  subRow.setAttribute('aria-label', 'صفحات القسم المختار');
+  subList.append(subRow);
+  // Under the row: the real link to a separate page the tree does not name.
+  const external = doc.createElement('p');
+  external.className = 'cn-external';
+  external.id = 'cnExternal';
+  external.hidden = true;
+  root.append(tabList, subList, external);
   const main = doc.querySelector('main');
   const navEl = doc.querySelector('main > nav');
   if (navEl) navEl.before(root); else if (main) main.prepend(root);
+  // A destination that is a separate page (the driver portal) is a real link with its
+  // own address. The tree names it (`external` = its data-tab); the page's own <a> is
+  // what is actually clicked, so the router's handler and the address are untouched.
+  // A page link the tree does not name is still shown, never dropped silently.
+  function pageExternals() {
+    return Array.from(doc.querySelectorAll('main > nav a[data-tab][href]'))
+      .filter(a => !doc.getElementById(a.getAttribute('data-tab')));
+  }
+  function externalDestinations() {
+    const links = pageExternals();
+    const shown = new Set();
+    const out = [];
+    for (const tab of TABS) {
+      for (const sub of tab.subtabs) {
+        if (!sub.external) continue;
+        const link = links.find(a => a.getAttribute('data-tab') === sub.external);
+        shown.add(sub.external);
+        out.push({
+          tab, sub, route: sub.external,
+          href: link ? link.getAttribute('href') : null,
+          label: sub.label,
+          title: sub.title || sub.label,
+          missing: !link
+        });
+      }
+    }
+    for (const link of links) {
+      const route = link.getAttribute('data-tab');
+      if (shown.has(route)) continue;
+      const label = (link.textContent || link.getAttribute('title') || route || '').trim();
+      out.push({ tab: null, sub: null, route, href: link.getAttribute('href'), label, title: label, missing: false });
+    }
+    return out;
+  }
+  const isExternalTrigger = el => Boolean(el) && el.tagName === 'A'
+    && el.hasAttribute('href') && !doc.getElementById(el.getAttribute('data-tab'));
 
   const tabButtons = new Map();
   for (const tab of TABS) {
@@ -16965,7 +17062,7 @@ window.NemowTrendPatterns = (() => {
     b.setAttribute('aria-selected', 'false');
     b.tabIndex = -1;
     b.textContent = tab.label;
-    b.title = tab.hint;
+    b.title = tab.hint + (tab.title ? ' — ' + tab.title : '');
     b.setAttribute('aria-description', tab.hint);
     tabList.append(b);
     tabButtons.set(tab.id, b);
@@ -16987,7 +17084,9 @@ window.NemowTrendPatterns = (() => {
     return carrier;
   }
   // Carriers exist before the router boots: navigation.js wires ids and roles for
-  // every `nav [data-tab]` at load time, and the shell asks them afterwards.
+  // every `nav [data-tab]` at load time, and the shell asks them afterwards. The
+  // fuel leaf is created first, so its trigger is a real router target from the start.
+  const fuelView = ensureFuelView();
   for (const id of Object.keys(SHELL_VIEWS)) ensureCarrier(id);
 
   // ---- shell-owned views --------------------------------------------------
@@ -17002,16 +17101,11 @@ window.NemowTrendPatterns = (() => {
     host.setAttribute('role', 'tabpanel');
     host.setAttribute('aria-hidden', 'true');
     host.dataset.compactLeaf = '1';
-    // The router's `activate()` owns `.active`; nothing here decides visibility.
-    if (route === 'cn-readings') {
-      const target = doc.getElementById('overview');
-      if (target) target.after(host); else main.append(host);
-    } else {
-      // Keep the page's own order: <main> ends with its footer, so an appended view
-      // would render after the signature block.
-      const footer = main.querySelector(':scope > footer');
-      if (footer) footer.before(host); else main.append(host);
-    }
+    // Keep the page's own order: <main> ends with its footer, so an appended view
+    // would render after the signature block. The router's `activate()` owns
+    // `.active`; nothing here decides visibility.
+    const footer = main.querySelector(':scope > footer');
+    if (footer) footer.before(host); else main.append(host);
     return host;
   }
   function mountShellView(route) {
@@ -17035,7 +17129,7 @@ window.NemowTrendPatterns = (() => {
     host.id = 'production';
     const note = doc.createElement('p');
     note.className = 'cn-note';
-    note.textContent = 'هذا جدول الإنتاج فقط، مأخوذ من سجلات الأداء اليومية نفسها. شاشة «أفضل/أقل 10» القديمة (الإنتاج) وإنجاز الفترة لم تُدمج به بعد، وهي متاحة في «شاشات قديمة».';
+    note.textContent = 'هذا جدول واحد من سجلات الأداء اليومية نفسها. شاشة «الإنتاج» (من ينجز أكثر؟) لها تبويبها المستقل، ولم تُدمج به، والمصادر تبقى كما هي.';
     host.append(mountHost, note);
     const api = global.NemowCompactProduction;
     if (!api || typeof api.mount !== 'function') {
@@ -17082,61 +17176,6 @@ window.NemowTrendPatterns = (() => {
     }
   }
 
-  function buildReadings(host) {
-    const title = doc.createElement('h2');
-    title.textContent = SHELL_VIEWS['cn-readings'].label;
-    host.append(title);
-    const wrap = doc.createElement('div');
-    wrap.className = 'cn-readings';
-    host.append(wrap);
-    // Read straight from the page's own sections; nothing is recomputed here.
-    const sources = [
-      ['من ينجز أكثر؟', 'delivery', 'مصدر: تقارير الأداء اليومية — شاشة مستقلة لم تُدمج'],
-      ['الوقت والتنفيذ', 'time', 'مصدر: سجلات الوردية وأداء المناديب، قيم منفصلة'],
-      ['إنجاز الفترة', 'months', 'مصدر: الأداء اليومي، ومصدر المسافة منفصل بتاريخ تصديره'],
-      ['المسافة ومصدرها', 'context', 'مصدر: تصدير المسافة — لا يُجمع مع الأداء'],
-      ['المقارنة بين الشهور', 'comparison', 'مصدر: نفس المناديب بأيام قياس متطابقة'],
-      ['تغطية المصادر', 'upload-sources', 'مصدر: سجل المصادر المتبنى']
-    ];
-    for (const [label, route, grain] of sources) {
-      const view = doc.getElementById(route);
-      if (!view) continue;
-      const box = doc.createElement('section');
-      const h3 = doc.createElement('h3');
-      h3.textContent = label;
-      const p = doc.createElement('p');
-      p.className = 'cn-grain';
-      p.textContent = grain;
-      const ul = doc.createElement('ul');
-      let shown = 0;
-      for (const panel of view.querySelectorAll(':scope > .panel, :scope > details')) {
-        if (shown >= 3) break;
-        const h = panel.querySelector('summary, h2, h3');
-        if (!h) continue;
-        const li = doc.createElement('li');
-        li.textContent = h.textContent.trim().slice(0, 120);
-        ul.append(li);
-        shown++;
-      }
-      if (!shown) continue;
-      const open = doc.createElement('p');
-      open.className = 'cn-note';
-      const b = doc.createElement('button');
-      b.type = 'button';
-      b.dataset.tab = route;
-      b.textContent = 'فتح الشاشة الكاملة →';
-      open.append(b);
-      box.append(h3, p, ul, open);
-      wrap.append(box);
-    }
-    if (!wrap.childElementCount) {
-      const p = doc.createElement('p');
-      p.className = 'cn-note';
-      p.textContent = 'لا توجد قراءات إضافية متاحة في هذه الصفحة.';
-      wrap.append(p);
-    }
-  }
-
   // ---- route interception -------------------------------------------------
   function ensureRouteView(route) {
     if (SHELL_VIEWS[route] && !doc.getElementById(route)) makeShellView(route);
@@ -17150,18 +17189,8 @@ window.NemowTrendPatterns = (() => {
   //   * the shell opens a shell-owned leaf itself; the router's own click step then
   //     re-activates the same route. No property of a page element is redefined and
   //     no second navigation transaction is started.
-  const LEGACY_OPEN_CLASS = 'cn-legacy-open';
-  function markLegacyOpen(route) {
-    doc.querySelectorAll('[data-cn-legacy]').forEach(b => {
-      b.dataset.open = b.dataset.cnLegacy === route ? '1' : '0';
-    });
-  }
-  // A capture listener installed now would sit before the shell's own click
-  // listener (the shell's bindings arrive with the page 'load'), and a capture
-  // listener that runs before the first user gesture is also handed a proxy whose
-  // getters must not be read. So a legacy trigger is re-pointed in place instead:
-  // the router only ever reads `trigger.dataset.tab`, and that is the one property
-  // invented (on this shell-owned legacy carrier, never on a content element).
+  // The leaf the shell last rendered, kept for the published read-only API.
+  let shownRoute = null;
   // True DOM element for an element-shaped event.target. The check is made in the
   // page realm (`Element.prototype.nodeType`), because some of this page's
   // listeners re-dispatch or read events through a Proxy: an `instanceof` here
@@ -17260,18 +17289,27 @@ window.NemowTrendPatterns = (() => {
       // it would fire traps the page cannot expect.
       const asked = trigger.getAttribute('data-tab');
       if (!asked) return;
+      // A destination that is a separate page (the driver portal) keeps its own
+      // element and address: its click goes straight to the page's own handler,
+      // and the shell never maps it onto a view of this page.
+      if (trigger.tagName === 'A') return;
+      // A trigger the page itself owns (a layer that adds its own tab) is left to the
+      // page: the shell only claims the routes in its own tree.
+      const own = trigger.id && trigger.id.indexOf('tab-') === 0 && trigger.closest('main > nav') ? trigger : null;
+      if (own && !EXTRA_TABS.some(x => (x.routes || []).includes(asked)) && !SHELL_VIEWS[asked] && !leafOf(asked)) return;
       const spec = leafOf(asked);
       if (!spec) {
-        // An unknown route: create its view up front so the router can open it,
-        // then let it open it exactly as before.
+        // A route with no owner: its own view is opened by the router, as it always
+        // was, and the shell claims no subtab for it.
         ensureRouteView(canon(asked));
         return;
       }
       const target = spec.sub.routes[0];
       const pageNative = Boolean(doc.getElementById(target));
       ensureRouteView(target);
-      // A shell-owned leaf has no `data-tab` trigger of its own, so the shell opens
-      // it here. A page-native leaf is left to the router, which opens it by id.
+      // Shell-owned leaves (the one production table, the fuel ledger's own leaf) are
+      // created by the shell and open through it; a page-native leaf is left to the
+      // router, which opens it by id.
       // Record the user's move as a real history entry BEFORE the page's own in-page
       // step (the router only calls replaceState, so without this Back leaves the app).
       journal(target, asked);
@@ -17310,100 +17348,191 @@ window.NemowTrendPatterns = (() => {
     const open = leaves().filter(v => v.classList.contains('active'));
     return open.length ? open[open.length - 1].id : null;
   }
+  // ---- the fuel ledger's own place -----------------------------------------
+  // The ledger is the page's own `.fs-panel` element. It must not be relocated into a
+  // screen that the period swap re-writes (that is how it disappeared), so it gets its
+  // own leaf that the swap never touches: #fs-panel is MOVED between the page's
+  // #delivery screen and this leaf, never copied. Both the original parent and the
+  // original sibling are recorded, so the ledger is always restored to its exact place.
+  function fuelPanel() {
+    // The page's own ledger element. It is found wherever it currently stands: inside
+    // #delivery, or already in its own leaf (then its recorded original is the place
+    // it returns to).
+    return doc.querySelector('.fs-panel');
+  }
+  // The ledger's own place: the element itself is moved in and out, never copied, so
+  // the page's period transaction (which re-writes the container around #delivery)
+  // cannot lose it. Its trigger is created before the router boots.
+  function ensureFuelView() {
+    const extra = EXTRA_TABS.find(t => (t.routes || []).includes('fuel-ledger'));
+    let host = doc.getElementById('fuel-ledger');
+    if (!host) {
+      host = doc.createElement('section');
+      host.id = 'fuel-ledger';
+      // `.view` is what the router's own activate() toggles; the router then treats this
+      // leaf like every page-native section (one controller, no second active owner).
+      host.className = 'view cn-view';
+      host.setAttribute('role', 'tabpanel');
+      host.setAttribute('aria-hidden', 'true');
+      host.dataset.compactLeaf = '1';
+      const h2 = doc.createElement('h2');
+      h2.textContent = extra.title;
+      const note = doc.createElement('p');
+      note.className = 'cn-note';
+      note.textContent = 'دفتر التعبئة كما جاء من تصدير المحطة: كل صف محفوظ، ولا يتغير عند تبديل فترة التحليل لأنه ليس من عائلة بيانات الأداء.';
+      const body = doc.createElement('div');
+      body.id = 'fuelLedgerMount';
+      host.append(h2, note, body);
+      const footer = main.querySelector(':scope > footer');
+      if (footer) footer.before(host); else main.append(host);
+      adoptLedger(body);
+    }
+    // A page leaf opens through the shell, which is where its trigger belongs; but the
+    // router wires nav triggers at load time, so the carrier is made that early too.
+    const trigger = ensureCarrier(extra.routes[0]);
+    if (trigger) trigger.dataset.cnFuelTrigger = '1';
+    return { host, extra };
+  }
+  // Adopt the page's ledger into its own permanent host exactly once. The host sits in
+  // <main> outside #delivery, which the period transaction re-writes wholesale, so the
+  // adopted element (and its rows) cannot be touched by a period change. Copying its
+  // previous parent's class, dir and inline style keeps the ledger's own styling.
+  function adoptLedger(target) {
+    const mount = target || doc.getElementById('fuelLedgerMount');
+    if (!mount) return false;
+    const panel = doc.querySelector('.fs-panel');
+    if (!panel) return false;
+    if (mount.contains(panel)) {
+      const extras = doc.querySelectorAll('.fs-panel');
+      // A second ledger would double the reading: the adopted one is the reading.
+      for (let i = extras.length - 1; i > 0; i--) extras[i].remove();
+      return true;
+    }
+    if (!panel.parentNode) return false;
+    const from = panel.parentNode;
+    const wrapper = doc.createElement('div');
+    // The ledger's own container attributes, minus its identity: presentation only.
+    ['class', 'dir', 'style'].forEach(name => {
+      const value = from.getAttribute && from.getAttribute(name);
+      if (!value || (name === 'class' && /\bview\b/.test(value))) return;
+      wrapper.setAttribute(name, value);
+    });
+    wrapper.id = 'fuelLedgerHost';
+    wrapper.dataset.cnAdopted = '1';
+    mount.append(wrapper);
+    wrapper.append(panel);
+    panel.dataset.cnAdopted = '1';
+    return true;
+  }
+
+  // The ledger lives in its permanent host from load; nothing moves it back or forth,
+  // so a period swap and the fuel leaf itself cannot lose it.
+  function keepFuelLedger() {
+    const mount = doc.getElementById('fuelLedgerMount');
+    if (!mount) return false;
+    if (!mount.querySelector('.fs-panel')) adoptLedger(mount);
+    return Boolean(mount.querySelector('.fs-panel'));
+  }
+
   function render(route) {
     route = route || activeRoute();
+    shownRoute = route || null;
     const spec = route ? leafOf(route) : null;
+    // A tab is selected when it owns the open leaf. A leaf that is a whole tab of its
+    // own (today, research, the fuel ledger) selects that tab.
+    const owner = spec ? spec.tab : TABS.find(t => t.page === route) || null;
     for (const tab of TABS) {
       const b = tabButtons.get(tab.id);
-      const on = Boolean(spec) && spec.tab.id === tab.id;
+      const on = Boolean(owner) && owner.id === tab.id;
       b.setAttribute('aria-selected', String(on));
-      b.setAttribute('aria-controls', on && spec ? 'cn-panel-' + spec.sub.id : '');
+      b.setAttribute('aria-controls', on && spec ? 'cn-sub-' + tabKey(spec.sub) : (on && tab.page ? tab.page : ''));
       b.tabIndex = on ? 0 : -1;
     }
-    if (!spec) {
-      // Legacy screen: no subtab is claimed; the row still names the tab it came
-      // from so the header never reads as a consolidated leaf.
-      subList.hidden = true;
-      subList.replaceChildren();
+    syncExternal();
+    const subs = spec ? spec.tab.subtabs : TABS[0].subtabs;
+    const labelledBy = spec ? 'cn-tab-' + spec.tab.id : 'cn-tab-' + TABS[0].id;
+    // A tab with no subtabs is one page: the row is not rendered at all.
+    subList.hidden = !spec;
+    if (subList.hidden) {
+      if (subRow.childElementCount) subRow.replaceChildren();
+      subList.removeAttribute('aria-labelledby');
       return;
     }
-    subList.replaceChildren();
-    // A tab with no subtabs is a single page: the row is not rendered at all.
-    subList.hidden = spec.tab.subtabs.length === 0;
-    if (subList.hidden) return;
-    subList.setAttribute('aria-labelledby', 'cn-tab-' + spec.tab.id);
-    for (const sub of spec.tab.subtabs) {
+    subList.setAttribute('aria-labelledby', labelledBy);
+    // The row is rebuilt only when its owner or its selection changes; a rebuild on
+    // every observation would destroy the focus of a user moving along the row.
+    const signature = spec.tab.id + '|' + (route || spec.sub.id);
+    if (subRow.dataset.signature === signature && subRow.childElementCount) return;
+    subRow.dataset.signature = signature;
+    subRow.setAttribute('aria-labelledby', labelledBy);
+    subRow.replaceChildren();
+    for (const sub of subs) {
+      if (sub.external) {
+        const a = doc.createElement('a');
+        a.className = 'cn-sub';
+        a.id = 'cn-sub-' + tabKey(sub);
+        a.setAttribute('role', 'tab');
+        a.textContent = sub.label;
+        a.dataset.cnSub = tabKey(sub);
+        a.title = sub.title || sub.label;
+        a.dataset.cnExternal = sub.external;
+        // The address is the page's own portal link; its own handler runs unchanged.
+        const link = pageExternals().find(el => el.getAttribute('data-tab') === sub.external);
+        a.href = link ? link.getAttribute('href') : '#';
+        a.setAttribute('aria-selected', 'false');
+        a.tabIndex = -1;
+        if (!link) {
+          a.setAttribute('aria-disabled', 'true');
+          a.dataset.cnMissing = '1';
+        }
+        subRow.append(a);
+        continue;
+      }
       const b = doc.createElement('button');
       b.type = 'button';
       b.className = 'cn-sub';
       b.id = 'cn-sub-' + tabKey(sub);
       b.setAttribute('role', 'tab');
-      b.setAttribute('aria-selected', String(sub.id === spec.sub.id));
-      b.tabIndex = sub.id === spec.sub.id ? 0 : -1;
-      b.setAttribute('aria-controls', sub.id === spec.sub.id ? 'cn-panel-' + sub.id : '');
+      const active = sub.id === spec.sub.id;
+      b.setAttribute('aria-selected', String(active));
+      b.tabIndex = active ? 0 : -1;
+      b.setAttribute('aria-controls', openOf(sub));
       b.textContent = sub.label;
       b.dataset.cnSub = tabKey(sub);
-      b.title = sub.routes.map(r => viewTitle(r)).join(' · ');
-      subList.append(b);
+      b.title = sub.title || sub.routes.map(r => viewTitle(r)).join(' · ');
+      if (sub.hint) b.setAttribute('aria-description', sub.hint);
+      subRow.append(b);
     }
     // The active leaf announces which subtab controls it.
     const view = doc.getElementById(spec.sub.routes[0]);
     if (view) view.setAttribute('aria-labelledby', 'cn-sub-' + tabKey(spec.sub));
-    markLegacyOpen(route);
-    rebuildLegacyList();
-    placeLegacy();
   }
-  const tabKey = sub => sub.routes[0].replace(/^compact-/, '').replace(/^cn-/, '');
+  const tabKey = sub => (sub.external || (sub.routes && sub.routes[0]) || sub.id).replace(/^compact-/, '').replace(/^cn-/, '');
 
-  // The disclosure belongs after the content it is about, not in the first screen.
-  function placeLegacy() {
-    if (!legacyList.childElementCount) { if (legacy.isConnected) legacy.remove(); return; }
-    const open = activeRoute();
-    const host = open && doc.getElementById(open);
-    const page = doc.querySelector('main');
-    if (host && host.parentElement === page) {
-      // Directly after the content of the screen the user is reading.
-      if (host.nextElementSibling !== legacy) host.after(legacy);
-    } else if (page) {
-      const footer = page.querySelector(':scope > footer');
-      if (footer) {
-        if (footer.previousElementSibling !== legacy) footer.before(legacy);
-      } else if (page.lastElementChild !== legacy) page.append(legacy);
-    } else if (!legacy.isConnected) {
-      root.append(legacy);
-    }
-    legacy.hidden = false;
-  }
-  function rebuildLegacyList() {
-    if (!legacyList) return;
-    const openNow = activeRoute();
-    const routes = legacyViewRoutes();
-    legacyList.replaceChildren();
-    for (const route of routes) {
-      if (!route) continue;
-      const b = doc.createElement('button');
-      b.type = 'button';
-      b.textContent = viewTitle(route);
-      b.dataset.cnLegacy = route;
-      b.dataset.open = route === openNow ? '1' : '0';
-      b.setAttribute('aria-description', 'شاشة مستقلة لم تُدمج: ' + route);
-      legacyList.append(b);
-    }
-    if (!legacyList.childElementCount && legacy.isConnected) legacy.remove();
-    else if (!legacy.isConnected && legacyList.childElementCount) root.append(legacy);
+  // A separate page the tree does not name is still shown as a real link, so no
+  // destination can disappear from the toolbar.
+  function syncExternal() {
+    const named = new Set(TABS.flatMap(t => t.subtabs).filter(x => x.external).map(x => x.external));
+    const links = pageExternals().filter(a => !named.has(a.getAttribute('data-tab')));
+    external.replaceChildren();
+    if (!links.length) { external.hidden = true; return; }
+    const caption = doc.createElement('span');
+    caption.textContent = 'صفحة مستقلة: ';
+    external.append(caption);
+    links.forEach((a, i) => {
+      if (i) external.append(doc.createTextNode(' · '));
+      const link = doc.createElement('a');
+      link.href = a.getAttribute('href');
+      link.id = 'cn-ext-' + i;
+      link.dataset.cnExternal = a.getAttribute('data-tab') || '';
+      link.textContent = (a.textContent || a.getAttribute('title') || a.getAttribute('data-tab') || '').trim();
+      link.title = 'يفتح صفحة مستقلة: ' + link.href;
+      external.append(link);
+    });
+    external.hidden = false;
   }
 
   // ---- observers: follow the router, never decide -------------------------
-  // Paragraphs that name another screen without a subtab. A reading is MOVED only
-  // when its whole container is the reading itself (the fuel panel); every other
-  // reading stays where it is and is reachable through the "شاشات قديمة" list.
-  // Nothing is rewritten, so each sentence keeps its original wording.
-  const moved = new Set();
-  function moveReading(node, target) {
-    if (!node || !target || moved.has(node) || target.contains(node)) return;
-    moved.add(node);
-    target.append(node);
-  }
   // ---- header numeric contract (design.css owns the layout) -----------------
   // The page's own header CSS lays title, chip and source line on one grid row, so at
   // 390 px the headline collides with itself and the meta lines. The shell solves that
@@ -17448,22 +17577,22 @@ window.NemowTrendPatterns = (() => {
     header.prepend(line);
     header.style.setProperty('--cn-brand-printed', '1');
   }
-  function applyMoves() {
+  // Header layout only. No reading is moved between screens: each screen keeps
+  // exactly the parts the page renders into it.
+  function applyLayout() {
     ensureHeaderContract();
     brandLine();
-    const shifts = doc.getElementById('shiftwork');
-    if (!shifts) return;
-    // The fuel ledger is a fill-by-vehicle reading (own grain, own dates): it
-    // belongs beside the shifts and cars, not under production.
-    moveReading(doc.querySelector('.fs-panel'), shifts);
+    syncExternal();
   }
   function onLeafChange() {
+    // The ledger lives in its permanent host, outside every re-written container.
+    keepFuelLedger();
     const route = activeRoute();
     if (route) {
       ensureRouteView(route);
       mountShellView(route);
     }
-    applyMoves();
+    applyLayout();
     render(route);
     // The production table reads the page payload lazily on its first render and
     // then follows the page's own period transaction; render() is cached after
@@ -17509,6 +17638,31 @@ window.NemowTrendPatterns = (() => {
     if (key === 'ArrowRight') return ltr ? 1 : -1;
     return ltr ? -1 : 1;
   };
+  // A subtab asks the router for the route it names; the router is the only opener.
+  // A tab opens its own remembered destination, else its first one. A tab that is one
+  // page, or whose first destination is a separate page, simply opens it.
+  function openTab(tab) {
+    if (tab.page) { request(tab.page); return; }
+    const cells = tab.subtabs;
+    const remembered = lastSub[tab.id];
+    const sub = cells.find(x => tabKey(x) === (remembered || '')) || cells[0];
+    if (!sub) return;
+    if (sub.external) {
+      const link = pageExternals().find(a => a.getAttribute('data-tab') === sub.external);
+      if (link) link.click(); else openSub(sub);
+      return;
+    }
+    openSub(sub);
+  }
+  function openSub(sub) {
+    if (!sub || sub.external) return false; // a separate page: its link is the opener
+    const route = sub.routes[0];
+    if (doc.querySelector('[data-tab="' + route + '"]')) request(route);
+    else if (doc.querySelector('[data-tab="' + openOf(sub) + '"]')) request(openOf(sub));
+    else return false;
+    render(openOf(sub));
+    return true;
+  }
   function installInput() {
   root.addEventListener('click', event => {
     if (doc.body.hasAttribute('data-cn-debug')) doc.body.setAttribute('data-cn-tap', 'shell');
@@ -17517,7 +17671,7 @@ window.NemowTrendPatterns = (() => {
       event.preventDefault();
       const tab = TABS.find(t => t.id === tabBtn.dataset.cnTab);
       if (!tab) return;
-      request(tab.page || lastSub[tab.id] || tab.subtabs[0].routes[0]);
+      openTab(tab);
       return;
     }
     const subBtn = event.target.closest('[data-cn-sub]');
@@ -17526,13 +17680,8 @@ window.NemowTrendPatterns = (() => {
       const tabId = tabOfCurrent();
       const tab = TABS.find(t => t.id === tabId) || TABS.find(t => t.subtabs.some(s => tabKey(s) === subBtn.dataset.cnSub));
       const sub = tab && tab.subtabs.find(s => tabKey(s) === subBtn.dataset.cnSub);
-      if (sub) request(sub.routes[0]);
+      if (sub) openSub(sub);
       return;
-    }
-    const old = event.target.closest('[data-cn-legacy]');
-    if (old) {
-      event.preventDefault();
-      request(old.dataset.cnLegacy);
     }
   });
   root.addEventListener('keydown', event => {
@@ -17545,7 +17694,7 @@ window.NemowTrendPatterns = (() => {
       if (event.key === 'Home') next = TABS[0];
       else if (event.key === 'End') next = TABS[TABS.length - 1];
       else next = cycle(TABS, rtlStep(event.key), current, t => t.id);
-      request(next.page || lastSub[next.id] || next.subtabs[0].routes[0]);
+      openTab(next);
       tabButtons.get(next.id)?.focus();
       return;
     }
@@ -17553,13 +17702,25 @@ window.NemowTrendPatterns = (() => {
     if (subBtn && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
       event.preventDefault();
       const tab = TABS.find(t => t.id === tabOfCurrent()) || TABS[0];
-      const current = subList.querySelector('[aria-selected="true"]')?.dataset.cnSub;
+      const cells = tab.subtabs;
+      const current = (subRow.querySelector('[aria-selected="true"]') || {}).dataset;
+      const fromKey = current ? current.cnSub : tabKey(cells[0]);
       let next;
-      if (event.key === 'Home') next = tab.subtabs[0];
-      else if (event.key === 'End') next = tab.subtabs[tab.subtabs.length - 1];
-      else next = cycle(tab.subtabs, rtlStep(event.key), current, tabKey);
-      request(next.routes[0]);
-      subList.querySelector('[aria-selected="true"]')?.focus();
+      if (event.key === 'Home') next = cells[0];
+      else if (event.key === 'End') next = cells[cells.length - 1];
+      else next = cycle(cells, rtlStep(event.key), fromKey, tabKey);
+      openSub(next);
+      // Keep the focus on the row: after the rebuild the selected cell is the one to
+      // continue from. Moving within one screen must never scroll the content away.
+      const focusSub = () => {
+        const el = subRow.querySelector('[aria-selected="true"]');
+        if (!el) return;
+        // Nothing scrolls here — not even the browser's own focus scroll: the toolbar
+        // sits at the top of the page and the content below is free to scroll.
+        try { el.focus({ preventScroll: true }); } catch (_) { el.focus(); }
+      };
+      if (global.requestAnimationFrame) global.requestAnimationFrame(focusSub);
+      else global.setTimeout(focusSub, 0);
     }
   });
   }
@@ -17567,14 +17728,16 @@ window.NemowTrendPatterns = (() => {
   // the selection: a pointer travelling across the header must not change the page.
   // Record the opened subtab of each tab so returning to a tab lands there.
   function installRemember() {
+  const remember = () => {
+    const route = activeRoute();
+    const spec = route && leafOf(route);
+    if (spec && spec.sub && !spec.sub.external) lastSub[spec.tab.id] = tabKey(spec.sub);
+  };
   for (const view of leaves()) {
-    const watch = new global.MutationObserver(() => {
-      const route = activeRoute();
-      const spec = route && leafOf(route);
-      if (spec) lastSub[spec.tab.id] = spec.sub.routes[0];
-    });
+    const watch = new global.MutationObserver(remember);
     watch.observe(view, { attributes: true, attributeFilter: ['class'] });
   }
+  remember();
   }
   // In-page load: bind immediately. During an overlay's document.write pass the
   // element is complete but the page is still parsing, so bind on 'load' instead:
@@ -17598,9 +17761,9 @@ window.NemowTrendPatterns = (() => {
     const spec = leafOf(canon(route));
     if (!spec) { render(activeRoute()); return; }
     if (!doc.getElementById(spec.sub.routes[0])) { ensureRouteView(spec.sub.routes[0]); }
-    const leaf = spec.page ? spec.sub.routes[0] : (spec.sub.target || spec.sub.routes[0]);
+    const leaf = spec.page ? spec.sub.routes[0] : openOf(spec.sub);
     if (activeRoute() !== leaf) openShellLeaf(leaf, canon(route));
-    else render(activeRoute());
+    else onLeafChange();
   }
   whenLoaded(() => {
     installInput();
@@ -17619,7 +17782,7 @@ window.NemowTrendPatterns = (() => {
     route = canon(route);
     const spec = leafOf(route);
     if (!spec) return;
-    const leaf = spec.page ? spec.sub.routes[0] : (spec.sub.target || spec.sub.routes[0]);
+    const leaf = spec.page ? spec.sub.routes[0] : openOf(spec.sub);
     if (doc.getElementById(leaf) && spec.page) return; // the router opened it itself
     ensureRouteView(leaf);
     openShellLeaf(leaf, canon(route));
@@ -17635,15 +17798,27 @@ window.NemowTrendPatterns = (() => {
     el.textContent = STYLE.join('\n');
     (doc.head || doc.documentElement).append(el);
   })();
+  // Published read-only surface (tests and operators read the tree from here).
   global.NemowCompactNav = Object.freeze({
-    version: 1,
-    maxSubtabs: MAX_SUBTABS,
+    version: 2,
     tabs: TABS.map(t => ({
-      id: t.id, label: t.label,
-      subtabs: t.subtabs.map(s => ({ id: s.id, label: s.label, routes: s.routes.slice(), key: tabKey(s) }))
+      id: t.id, label: t.label, page: t.page || null,
+      subtabs: t.subtabs.map(s => ({
+        id: s.id, label: s.label, key: tabKey(s), opens: openOf(s),
+        routes: (s.routes || []).slice(), external: s.external || null,
+        title: s.title || null
+      }))
     })),
+    external: () => externalDestinations().map(a => ({
+      route: a.route, href: a.href, label: a.label, missing: Boolean(a.missing)
+    })),
+    // Views on the page that no tab claims. This is a diagnostic, not a menu: every
+    // live screen is expected to have its own destination.
+    unclaimedRoutes: () => leaves().map(v => v.id).filter(id => !id || !leafOf(id)),
     leafOf,
-    legacyRoutes: legacyViewRoutes,
+    // Where the shell believes it is: the resolved leaf of the last render, which
+    // also covers a subtab that shares its element with another subtab.
+    shown: () => shownRoute,
     activeRoute,
     request,
     refresh: onLeafChange
