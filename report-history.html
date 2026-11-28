@@ -28,6 +28,7 @@ const nemowPeriodMonths = {
 };
 window.NemowI18nPatterns = [
   [/^آخر يوم مسجّل (\d{4}-\d{2}-\d{2}) · (\d+) منديباً · بطاقات الأداء تتبع الفترة المختارة من فلتر الأداء · المحفظة لقطة (\d{4}-\d{2}-\d{2}) · التصنيف لقطة ([A-Za-z]+ \d{4}) · قواعد المالك: حجم العمل، الجودة، التوزيع، المحفظة\.$/, 'Last recorded day $1 · $2 drivers · Performance cards follow the selected period · Wallet snapshot $3 · Rating snapshot $4 · Owner criteria: workload, quality, distribution and wallet.'],
+  [/^(\d+|غير متاح) معرّف مندوب متميز في سجلات المصادر المحددة، وليس عدد المناديب الحاليين أو النشطين · (\d+|غير متاح) أسابيع$/, (_, count, weeks) => `${count === 'غير متاح' ? 'Unavailable' : count} distinct driver IDs in selected source records, not current or active driver headcount · ${weeks === 'غير متاح' ? 'Unavailable' : weeks} weeks`],
   [/^(\d+) مندوباً · (\d+) أسابيع$/, '$1 drivers · $2 weeks'],
   [/^كل الفترة المسجلة حتى (\d{4}-\d{2}-\d{2}) · قطع التحليل (\d{4}-\d{2}-\d{2}) · المناديب حتى (\d{4}-\d{2}-\d{2})$/, 'All recorded data through $1 · Analysis cutoff $2 · Drivers through $3'],
   [/^مصدر المسافة حتى (\d{4}-\d{2}-\d{2}) · قطع تحليل المسافة والوردية (\d{4}-\d{2}-\d{2}) · بناء (\d{4}-\d{2}-\d{2} \d{2}:\d{2})$/, 'Distance source through $1 · Distance and shift analysis cutoff $2 · Built $3'],
